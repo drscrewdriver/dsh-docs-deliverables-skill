@@ -9,7 +9,7 @@ Every technical claim inside the skills is code-verified against `deepseek-harne
 ## Install (as a DSH plugin)
 
 ```sh
-dsh plugin --profile web add github:<owner>/dsh-docs-deliverables-skill
+dsh plugin --profile web add github:drscrewdriver/dsh-docs-deliverables-skill
 ```
 
 The bundle row mounts `src/index.js`, which registers a bundled SkillProvider over `skills/`. If a profile does not mount the skill registry, the plugin no-ops silently (soft `ctx.get('skills')` guard).

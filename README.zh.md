@@ -9,7 +9,7 @@ MIT ｜ 零运行时依赖 ｜ bundle 插件
 ## 安装（作为 DSH 插件）
 
 ```sh
-dsh plugin --profile web add github:<owner>/dsh-docs-deliverables-skill
+dsh plugin --profile web add github:drscrewdriver/dsh-docs-deliverables-skill
 ```
 
 bundle 行挂载 `src/index.js`，向 `skills/` 注册 bundled SkillProvider。若某 profile 未挂技能注册表，插件静默空转（`ctx.get('skills')` 软守卫）。
