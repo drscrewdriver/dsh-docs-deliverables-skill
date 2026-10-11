@@ -1,0 +1,10 @@
+# dsh-docs-deliverables-skill bundle layer.
+# Mounts the embedded docs-skills provider (./src/index.js) into any profile
+# that enables this bundle. Rows are last-write-wins per id; the id here owns
+# only this package's own row, overriding nothing official.
+# Verified against: ctx.skills.registerProvider (packages/skill/skill@all six
+# host tags, git grep probe 2026-10-11) and the agent-preset bundled-skills
+# precedent (packages/preset/agent-preset/tests/skills.spec.ts:60-64).
+- insert:
+    - id: dsh-docs-deliverables-skill
+      name: dsh-docs-deliverables-skill

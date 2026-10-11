@@ -1,0 +1,86 @@
+# skill-anchor-map —— DSH 文档 skill 化的防腐化唯一闸
+# 结构: claim_id → source(原文档§位置) → evidence(file:line@宿主版本 | 复现命令) → status
+# status: VERIFIED(源码命中) / FARM(farm 实测,静态源码不可复核) / PENDING(待核) / CONFLICT-ADJUDICATED(已裁决) / UNVERIFIED(保留不收录正文)
+# 复核纪律: 宿主每升 rc 后逐条重跑 evidence;未命中→对应 skill 段落加「⚠ 待重新核实 <date>」
+# 基准: MAIN=deepseek-harness(0.2.0-rc.2) / AUX=.harness-017rc2-wt(0.1.7-rc.2) / OLD=dsh-repo(0.1.5-rc.2)
+# 建档: 2026-10-11
+
+meta:
+  # <ws> = 本知识库所在工作区/仓库根目录（可移植路径占位，不保留任何机器绝对地址）
+  baselines:
+    main: { path: "<ws>/deepseek-harness", version: 0.2.0-rc.2, git: true }
+    aux:  { path: "<ws>/.harness-017rc2-wt", version: 0.1.7-rc.2, git: true }
+    old:  { path: "<ws>/dsh-repo", version: 0.1.5-rc.2, git: true }
+    snapshot-study-docs: { path: "<ws>/dsh-study-docs/deepseek-harness", version: 0.1.0-rc.5, git: false, role: 引用坐标不作判据 }
+
+claims:
+  gate-peer-only-authority:
+    source: 既有记忆/旧文档冲突项(裁决见 adjudications.gate-surface)
+    evidence:
+      - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:61-88   # 只读 manifest.peerDependencies
+      - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:75       # 仅 @deepseek-ai/dsh / @deepseek-ai/dsh-* 前缀
+      - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:77       # semver.satisfies(…, includePrerelease:true)
+      - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:101      # 豁免通道 dsh plugin allow-version
+      - MAIN: 同文件同语义(callers: app-boot/profile.ts:675, plugin-manager/operations.ts:344,479, index.ts:301,546,722)
+    status: CONFLICT-ADJUDICATED   # engines.dsh 与 dsh.plugin.json 均不在 runtime 门禁面;双清单不一致=元数据卫生级(P2)
+    feeds: [peer-adapt SKILL 双闸门, gate-checklist 分级, VD 卡「老线装不上」处方]
+
+  installsection-gen3-removed:
+    source: improve-dsh-plugins/10-手册.md §1 表行3; settings-registration-migration.md §1.1
+    evidence:
+      - AUX: grep 'installSection|settingsNamespace' packages/settings → 0 命中 (2026-10-11)
+      - MAIN: grep 'installSection|settingsNamespace' packages/settings → 0 命中 (2026-10-11)
+      - AUX: packages/settings/settings/src/index.ts:223 export class SettingsForms extends Service
+      - AUX: packages/settings/settings/src/index.ts:266 configure(presentation, …)
+    status: VERIFIED
+
+  register-service-method-absent:
+    source: settings-registration-migration.md:29 (裁决 prime-memory src/settings.ts:249-252 「register 优先」分支)
+    evidence:
+      - OLD: packages/settings/settings/src/index.ts:445   # settings.register(${…}) 仅 dispose/错误标签模板
+      - OLD: packages/settings/settings/src/index.ts:472   # 真实 API 是 installSection 方法定义
+    status: CONFLICT-ADJUDICATED   # 「settings.register 作为服务方法」在 0.1.5 亦不存在;0.1.0/0.1.1 面待 npm pack 补证,当年分支判 UNVERIFIED-HISTORIC
+
+  locale-9lang-host-anchors:
+    source: mine-dsh-plugins/_locale_rollout_spec.md:8-15,20-21
+    evidence:
+      - MAIN: packages/client/locale/src/locale-settings.ts:12 LOCALE_ID_PATTERN
+      - MAIN: packages/client/locale/src/client/index.ts:133,137,406   # id/fallback/locale 三处 pattern 门禁
+      - MAIN: packages/boot/app-boot/src/package-meta.ts:104-112,151    # locale/<lang>.json 扫描;en.json 必需基准;重复 locale 拒收
+    status: VERIFIED               # 2026-10-11 已补 package-meta 锚
+
+  waist-three-gen-table:
+    source: improve-dsh-plugins/10-手册.md §1 L14-18
+    evidence:
+      - 第3代(0.1.7+/0.2.0): 见 installsection-gen3-removed 四锚   # VERIFIED
+      - 第2代(0.1.2-0.1.6): OLD installSection 定义 :472           # VERIFIED
+      - 第1代(0.1.0/0.1.1) 模块级 installSettingsSection/settingsNamespace 具名导出: FARM 实测,静态源码待 npm pack 补证
+    status: PENDING                # 整体升级 VERIFIED 需代1 npm pack 取证
+
+  slot-enumeration-017-020:
+    source: improve-dsh-plugins/10-手册.md §2 L45-50 (实测 2026-10-07, farm 3081~3090)
+    evidence: [farm 五格 DOM 枚举; 0.1.7-rc.2 与 0.2.0-rc.2 plugin-manager 槽渲染位逐字一致]
+    status: FARM                   # 取证口径注: farm 共享格≠某线能力源(假满足陷阱), 引用时保留该警示
+
+  data-plugin-config-020-only:
+    source: improve-dsh-plugins/10-手册.md §2 L50
+    evidence: [farm 实测: 0.2.0 外层 div 带 data-plugin-config, 0.1.7 无]
+    status: FARM                   # CSS 选择器勿依赖
+
+  volatile-gen3-only:
+    source: settings-registration-migration.md §0.3 (无法一份代码兼容 0.1.6↔0.1.7,必切线)
+    evidence:
+      - MAIN: packages/web/web-search-deepseek/src/index.ts:67-76       # zod 字段 .volatile() 实产用法
+      - MAIN: packages/client/product-analytics/src/index.ts:30,37      # .volatile() + loader/volatile-update 监听
+      - MAIN: vendor/loader/src/index.ts:34 (经 scripts/gen-cordis-catalog.ts:1004 索引) # loader/volatile-update 事件定义
+      - OLD:  0.1.5/0.1.6 schemastery 无 volatile 待证(次批 grep dsh-repo)
+    status: PENDING   # MAIN 侧已 VERIFIED;仅「老线不存在」半边待证
+
+  superseded-quartet:
+    source: 计划 Phase1-4 已知四组
+    items:
+      - DSH-PLUGIN-COMPATIBILITY-GUIDE dual-API → 被 waist-three-gen-table 取代
+      - 03-multilingual/FILE-STRUCTURE 四语 → 被 locale-9lang-host-anchors 取代
+      - VERSION-DISTRIBUTION F3 dsh.plugin.json → 被 gate-peer-only-authority 裁决取代
+      - 01-host-client installSection 骨架 → 按三代分派改写
+    status: CONFLICT-ADJUDICATED

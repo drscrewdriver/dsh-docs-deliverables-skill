@@ -1,0 +1,48 @@
+{
+  "name": "dsh-docs-deliverables-skill",
+  "version": "0.1.0",
+  "description": "Bundled DSH plugin-development knowledge skills: cross-version adaptation ledger (6 host lines), plugin dev contract, release/submission discipline, host architecture digests — served to agents as ctx.skills providers.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "skills/",
+    "maintenance/",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "skills",
+    "docs",
+    "cross-version"
+  ],
+  "engines": {
+    "dsh": ">=0.1.0-rc.8"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drscrewdriver/dsh-docs-deliverables-skill.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "scripts": {
+    "prepack": "node scripts/verify-layout.mjs",
+    "verify": "node scripts/verify-layout.mjs"
+  }
+}
