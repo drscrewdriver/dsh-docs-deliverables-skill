@@ -511,7 +511,7 @@
 | 断裂面 | 升级指南 14 篇（`v0.2.1-alpha.2/`×10 + `v0.2.1-alpha.1/`×3 + `v0.2.0-rc.2/`×1）；`SESSION_FORMAT_VERSION` 恒 4，+2 同版本承认（job-session-lifecycle/user-rpc-principal） |
 | 运行时症状 | 默认导入得 undefined；拼 id 404；`persona` 配置键拒收；install 返 `already-installed`；脚本订阅 `$events` 永不到来 |
 | 检测点代码 | `import * as NS` 后 `typeof NS.apply === 'function'`；错误码穷尽 switch 补 `already-installed` 分支 |
-| 兜底处方 | 逐类处方见 `source-analysis/v0.2.1-alpha.3/plugin-migration-guide.md`（六类必做 + 行为核对表） |
+| 兜底处方 | 逐类处方见 `source-analysis/v0.2.1-alpha.3/plugin-migration-guide.md`（七类必做 + 行为核对表） |
 | 证据 | VERIFIED：tag 探针符号级（MAIN `git diff dsh-v0.2.1-alpha.2 dsh-v0.2.1-alpha.3`）+ 指南原文 |
 | 先例仓 | cci（prompt 形状）、perm-gate（agents.create 包装面未变）、自研安装自动化脚本 |
 
@@ -519,7 +519,7 @@
 
 | 字段 | 内容 |
 |---|---|
-| 变化点 | 首批**成批删除的客户端具名导出**（grep 全仓无残影）：`projectUserText`/`UserTextReferences`（→`UserTextRun`/`ReferenceChip`）、`RenderMessageImages`（→`MessageImagesOwnerProps`/`MessageImagesContentInput`）、`OperatorPeer`（→`Peer`+`PeerAdmission`）、`TURN_PROCESS_INDEPENDENT_KINDS`、`TerminalAttachmentId`、`WorkspaceTypertGenerator`；槽 `conversation.message.images` 拆为 `conversation.chat.message.images`+`conversation.chat.user.images`；新槽 `conversation.hero.options`/`conversation.user.text.node`/`workspace.toast`（a.4 +`plugins.tab`，a.5 +`conversation.input.model.label`） |
+| 变化点 | 首批**成批删除的客户端具名导出**（grep 全仓无残影）：`projectUserText`/`UserTextReferences`（→`UserTextRun`/`ReferenceChip`）、`RenderMessageImages`（→`MessageImagesOwnerProps`/`MessageImagesContentInput`）、`OperatorPeer`（→`Peer`+`PeerAdmission`）、`TURN_PROCESS_INDEPENDENT_KINDS`、`TerminalAttachmentId`（注：符号扫描曾报的 `WorkspaceTypertGenerator` 删除系误报——实现移 `workspace.ts` 后 index 仍再导出）；槽 `conversation.message.images` 拆为 `conversation.chat.message.images`+`conversation.chat.user.images`；新槽 `conversation.hero.options`/`conversation.user.text.node`/`workspace.toast`（a.4 +`plugins.tab`，a.5 +`conversation.input.model.label`） |
 | 断裂面 | slot-catalog（`packages/extensions/cordis-client-runner/src/client/slot-catalog.ts`）a.2→a.3 +627/−179；旧槽名注入**静默失效**（不报错无渲染） |
 | 运行时症状 | 类型面 `tsc` 即炸；槽面旧名注入无效果 |
 | 检测点代码 | typecheck 即闸；注入后检查 registry 命中（参考 dsh-msg-adjacency 的 `slot:registered` 探针模式） |
