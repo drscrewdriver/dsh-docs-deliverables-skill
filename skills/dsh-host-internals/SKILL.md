@@ -28,6 +28,8 @@ description: DSH（DeepSeek Harness）宿主内部架构查阅——12 篇模块
 
 ## 漂移警示区（0.1.0-rc.5 → 0.2.0-rc.2 实测三大块）
 
+0. **⚠ 0.2.1 线二次漂移（2026-10-17 登记）**：本技能 anchors 侧车基准仍钉 0.2.0-rc.2；**≥0.2.1-alpha.2 碰包路径的结论需先在新基线重探**——能力包大搬迁（hooks/webhook/skill-badge/tool-ralph/tool-session-query/tool-terminal → `packages/experimental/`）+ bundle 打包制（a.2）、子代理 activation 统一（`startActivation()`，in-process-driver 移除）、working-directory 能力缝（`{{cwd}}` 删除）、客户端契约符号换代（projectUserText/RenderMessageImages/OperatorPeer，a.3）、闸门 engines.dsh 时代（a.4）——探针基用 MAIN=`<ws>/deepseek-harness`（含 dsh-v0.2.1-alpha.1..5/rc.1 全 tag，`git show|grep <tag>` 即探）；断裂面详单 → dsh-plugin-peer-adapt §7 / `mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-*`。
+
 1. **GUI 客户端分层重组**（digest-10 头部标注）：slot 贡献契约改 `inject:['slots'] + ctx.slots.inject`；`ui-*` 包 39→54。
 2. **会话格式与投影**（digest-02/06/08）：`SESSION_FORMAT_VERSION` 0→4；手写 fold 已废，走 `ctx.sessionProjections.register`。
 3. **设置面 + 工程拓扑**（digest-07/12）：`examples/` 删、`native/landlock-run`→`native/system`、`workflow-worker-thread`→`workflow-ptc`、agent-presets 迁 packages/preset。

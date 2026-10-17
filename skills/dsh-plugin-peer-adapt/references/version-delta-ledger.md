@@ -1,4 +1,4 @@
-> 溯源｜本计划核心交付（草案定稿 2026-10-11）。37 卡 VERIFIED31/FARM2/PENDING4。与旧文档冲突时以本台账+源码为准；farm 级结论自带共享格假满足警示。
+> 溯源｜本计划核心交付（定稿 2026-10-11，2026-10-17 增补 §7 至 7 卡）。44 卡 VERIFIED38/FARM2/PENDING4。与旧文档冲突时以本台账+源码为准；farm 级结论自带共享格假满足警示。
 
 # A. version-delta-ledger —— DSH 宿主跨线变化点台账（草案 v0.1）
 
@@ -489,6 +489,86 @@
 
 ---
 
+## §7 0.2.0 → 0.2.1（含线内 alpha.1..5 / rc.1 断代；逐段全量细节见 `<ws>/mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-*`）
+
+### VD-020-021-01 · 兼容性闸门换代（症状：0.2.1-alpha.4+ 装了带 `engines.dsh` 的包被拒载 / 读 `peers` 字段拿不到）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | **闸门存在时代切换**：≤0.2.1-alpha.3（含 0.1.7～0.2.0）纯 peer 判定；**≥0.2.1-alpha.4 起 `engines.dsh` 单独裁决**（peers 被忽略），无该键才回落 peer 规则 |
+| 断裂面 | `packages/boot/app-boot/src/plugin-compatibility.ts`@a.3→a.4 的 +43/−29：新增 `unmetRequirements()`；`PluginCompatibility.peers`→**`requirements`**（`IncompatiblePlugin` 同步）；`workspace:` 仅 peers 合法（engines.dsh 内判不兼容）；`engines` 非对象/`engines.dsh` 非字符串 → manifest 不可读**拒载**。官方指南 `docs/upgrade-guide/v0.2.1-alpha.3/plugin-engines-dsh/` |
+| 运行时症状 | 同一包在 a.3 能装、a.4 被拒（或反之）；拒载提示键名从包名变 `engines.dsh`；读拒载记录的脚本/测试拿 `peers` 得 undefined |
+| 检测点代码 | 探测 runtime 版本属合法范围（例外：此处只能读版本号判定）或用探针包：带 `engines.dsh: ">=99"` 的包在 a.4+ 必拒、a.3 必收（engines 被忽略） |
+| 兜底处方 | 双保险策略：**要广兼容则删 `engines.dsh`（回 peer 规则）**；若声明则 range 必须覆盖全部目标线版本（`0.2.1-alpha.1 \|\| 0.2.1-alpha.2 \|\| … \|\| 0.2.1-rc.1` 或 `>=0.2.1-alpha.1 <0.2.2-0`）；消费拒载记录的代码同时读 `requirements ?? peers` |
+| 证据 | VERIFIED：tag 探针（`git diff dsh-v0.2.1-alpha.3 dsh-v0.2.1-alpha.4 -- plugin-compatibility.ts`）+ 指南原文；a.4→a.5、a.5→rc.1 闸门零 diff |
+| 先例仓 | 全部六线 peer 枚举写法需重审（dsh-im-union 类六连枚举包：只要不写 engines.dsh 即不受影响） |
+
+### VD-020-021-02 · 0.2.1-alpha.3 编排面契约换代（症状：JSONL 默认导入炸 / JobId 拼不出来 / 子代理配置被拒）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | 一处集合（a.3 段）：① `dsh-session-persistence-jsonl` 无 default 导出（命名空间插件）；② JobId `<kind>-N`→`<kind>-<16hex>`，删 `executionId`/`JobExecutionId`；③ `dsh-tool-subagent` 拒 `persona`/`toolFilter`，改 `agentPreset`；④ HMR 下 `installBundle` 对已装包报 `already-installed`；⑤ 凭据优先级反转（存储 > env）；⑥ 非页面 Connection 默认 `interactions:'none'`（无 `$events/$on/$stream`） |
+| 断裂面 | 升级指南 14 篇（`v0.2.1-alpha.2/`×10 + `v0.2.1-alpha.1/`×3 + `v0.2.0-rc.2/`×1）；`SESSION_FORMAT_VERSION` 恒 4，+2 同版本承认（job-session-lifecycle/user-rpc-principal） |
+| 运行时症状 | 默认导入得 undefined；拼 id 404；`persona` 配置键拒收；install 返 `already-installed`；脚本订阅 `$events` 永不到来 |
+| 检测点代码 | `import * as NS` 后 `typeof NS.apply === 'function'`；错误码穷尽 switch 补 `already-installed` 分支 |
+| 兜底处方 | 逐类处方见 `source-analysis/v0.2.1-alpha.3/plugin-migration-guide.md`（六类必做 + 行为核对表） |
+| 证据 | VERIFIED：tag 探针符号级（MAIN `git diff dsh-v0.2.1-alpha.2 dsh-v0.2.1-alpha.3`）+ 指南原文 |
+| 先例仓 | cci（prompt 形状）、perm-gate（agents.create 包装面未变）、自研安装自动化脚本 |
+
+### VD-020-021-03 · 0.2.1-alpha.3 客户端契约符号换代（症状：`tsc` 报 import 的具名符号不存在）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | 首批**成批删除的客户端具名导出**（grep 全仓无残影）：`projectUserText`/`UserTextReferences`（→`UserTextRun`/`ReferenceChip`）、`RenderMessageImages`（→`MessageImagesOwnerProps`/`MessageImagesContentInput`）、`OperatorPeer`（→`Peer`+`PeerAdmission`）、`TURN_PROCESS_INDEPENDENT_KINDS`、`TerminalAttachmentId`、`WorkspaceTypertGenerator`；槽 `conversation.message.images` 拆为 `conversation.chat.message.images`+`conversation.chat.user.images`；新槽 `conversation.hero.options`/`conversation.user.text.node`/`workspace.toast`（a.4 +`plugins.tab`，a.5 +`conversation.input.model.label`） |
+| 断裂面 | slot-catalog（`packages/extensions/cordis-client-runner/src/client/slot-catalog.ts`）a.2→a.3 +627/−179；旧槽名注入**静默失效**（不报错无渲染） |
+| 运行时症状 | 类型面 `tsc` 即炸；槽面旧名注入无效果 |
+| 检测点代码 | typecheck 即闸；注入后检查 registry 命中（参考 dsh-msg-adjacency 的 `slot:registered` 探针模式） |
+| 兜底处方 | 以 MAIN tag 探针（`git grep <符号> dsh-v0.2.1-alpha.3`）grep 替换；旧槽双注（新名优先、旧名兜底）过渡 |
+| 证据 | VERIFIED：符号级 diff + grep 全仓 0 命中双证 |
+| 先例仓 | 自渲染用户消息/images 的 client 半插件（tidy-display/brief-sidebar 类） |
+
+### VD-020-021-04 · 0.2.1-alpha.5 账号通知形状放宽（症状：通知元数据读空/UUID 断言炸）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | `AccountBonusNotification`：`campaign/amount/currency/grantedAt` 可选且 `JsonValue` 未校验；`orderId` 任意串；空 `expiresAt`=永不过期；新增可选 `title`。指南 `v0.2.1-alpha.4/account-notification-fields` |
+| 兜底处方 | 存在性收窄 + 空 `expiresAt` 当永久；fixture 换非 UUID id + 空过期各一例 |
+| 证据 | VERIFIED：指南原文 + 6 个 account commit 锚（`2dcd031a8e` 等） |
+
+### VD-020-021-05 · 0.2.1-rc.1 = a.5 逐面全等 + vendor 正式线（症状：rc.1 与 a.5 行为差异归因）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | 纯版本 bump（355 个 package.json ±355 对称，零代码）；唯一实际变化：**runtime 版本字符串 `0.2.1-rc.1`**（peer/engines 命中判定对象换了）+ vendor 转正式线（cordis 4.0.5 / schemastery 3.18.5 / loader 1.0.6 / hmr 1.0.20 等 9 件，PR #6388） |
+| 兜底处方 | `^0.2.1-alpha.1` 形式经 `includePrerelease` 可命中同三元组 rc.1；枚举写法无需追加 rc.1 以外的项 |
+| 证据 | VERIFIED：tag 探针（`git diff --name-only a.5 rc.1` 全部为 package.json） |
+
+### VD-020-021-06 · 0.2.1-alpha.2 编排 API 与 provider 面换代（症状：run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留报错 / webRuntime 注入失效）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | 指南级 breaking ×10 集合（官方指南 20 篇）：①子代理激活统一化（委派只返 `{kind:'activation',subagentId}`；`start()/startContinuable()`→`startActivation()`；`backgroundMode`/`run_in_background` 删；`subagent-in-process-driver` 包移除）；②`{{cwd}}` 提示词变量删除与子代理 `cwd` 配置键删（→ `ctx.workingDirectory`）；③`BundleInfo` 新增必填 `official`/`availability`（slot `PluginPackageRef` 同步）；④session-title 三导出删（改 `ctx.sessionTitle.register()` + `executeSessionTitleLlm`）；⑤`webRuntime`→`webStartup` 且拒通配 host；⑥SSH/PTC `launch` 换代（protocol 2）；⑦`TerminalBlockLabels` 新增必需 `commandLine()`；⑧tool presentation 拒 `both`；⑨Python PTC 强制 sandbox；⑩可选包显式 bundle 挂载（装包≠挂载） |
+| 断裂面 | 逐提交证据见 `<ws>/mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-alpha.2/`（README/diff/migration 全套）；新缝 +4（workingDirectory/worktrees/translator/cotTranslation）；持久化 +5 同版本承认 |
+| 运行时症状 | 旧 prompt 模板残留 `{{cwd}}` 发请求前失败；精确校验 BundleInfo 的测试编译/运行双断；注入 `webRuntime` 的 profile 加载即拒 |
+| 检测点代码 | `ctx.get('workingDirectory') !== undefined`（a.2+）；委派返回体 `res.kind === 'activation'` |
+| 兜底处方 | 按 `v0.2.1-alpha.2/plugin-migration-guide.md` 十分类逐类过；a.3/a.4/a.5 不回收任何 a.2 处方 |
+| 证据 | VERIFIED：source-analysis a.2 目录（tag 探针 + 指南原文） |
+| 先例仓 | CCI（prompt 形状）、msg-adjacency（activation 返回体）、任何读过 data.stream/webRuntime 的包 |
+
+### VD-020-021-07 · 0.2.1-alpha.4 宿主 release 刷新语义 + 插件市场进门（症状：升级宿主后插件不更新 / 想要官方市场入口）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | ① client-modules 解析图前先比宿主 release；**来自其它宿主 release 的插件更新不自动应用**，宿主 release 变化时弹重载提示（`a7a40f93d9`/`f52abc04fa`/`7c9e54b3ef`）；② 插件市场族：新缝 `ctx.pluginMarket` + 新槽 `plugins.tab` + 5 新包（Discover 页/索引校验/参考生成器） |
+| 断裂面 | 安装原语仍走 plugin manager（a.3 的 `already-installed` 等语义照常）；市场只 fetch/validate 不安装 |
+| 运行时症状 | 宿主换代后插件仍旧版且无错（需重载）；自挂市场入口插件与官方页重叠 |
+| 检测点代码 | 不适用（版本层行为）；发布说明中告知重载步骤 |
+| 兜底处方 | 升级宿主 = 重启/重载两步写进插件 README；市场类插件优先对接 `ctx.pluginMarket` + `plugins.tab` |
+| 证据 | VERIFIED：`git log dsh-v0.2.1-alpha.3..dsh-v0.2.1-alpha.4` 锚定 + source-analysis v0.2.1-alpha.4 |
+| 先例仓 | dshmarket 类第三方市场页插件 |
+
+---
+
 ## 附：症状词 → VD-ID 路由候选表（供 SKILL.md 首屏，症状词做首词）
 
 | 症状词（用户/日志原话形态） | 首选 VD-ID | 备选 |
@@ -523,6 +603,14 @@
 | 桌面端插件管理与 web 不一致 | VD-017-020-07 | — |
 | arrowkey / sessions.open 失效 | VD-015-016-06 | — |
 | 权限闸门报 not registered | VD-016-017-05 | 10 号:106 `dsh-perm-gate` |
+| 0.2.1-alpha.4+ 带 engines.dsh 被拒载 | VD-020-021-01 | VD-016-017-08 |
+| 读拒载记录 `peers` 拿不到 / workspace: 在 engines 被拒 | VD-020-021-01 | — |
+| JSONL 默认导入炸 / JobId 拼不出 / 子代理配置被拒 | VD-020-021-02 | — |
+| 客户端具名符号 import 编译不过 / 旧槽注入静默无渲染 | VD-020-021-03 | — |
+| 账号通知元数据读空 / orderId 非 UUID | VD-020-021-04 | — |
+| rc.1 与 alpha.5 差异 | VD-020-021-05 | — |
+| run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留 / webRuntime 失效 | VD-020-021-06 | — |
+| 升级宿主后插件不更新 / 官方插件市场 | VD-020-021-07 | VD-020-021-01 |
 
 ---
 
@@ -536,7 +624,8 @@
 | §4 0.1.5→0.1.6 | 6 | 5 | 0 | 1 | 0 |
 | §5 0.1.6→0.1.7 | 10 | 9 | 0 | 1 | 0 |
 | §6 0.1.7→0.2.0 | 8 | 5 | 1 | 2 | 0 |
-| **合计** | **37** | **31** | **2** | **4** | **0** |
+| §7 0.2.0→0.2.1（含线内断代） | 7 | 7 | 0 | 0 | 0 |
+| **合计** | **44** | **38** | **2** | **4** | **0** |
 
 > 说明：VD-016-017-07（bind 面 `update`→`mutate`/+`dispose`）已并入 VD-016-017-03 的迁移公式条目；VD-011-012-02b 为补号卡。
 > 等级取卡内**最高可用级**（同卡内若部分 PENDING 已在字段栏注明，不因局部待证降级）。
@@ -555,5 +644,5 @@
 | 6 | `settings.plugin.item` 塌缩点：0.1.7（文档） vs 0.1.6-alpha.2（探针）；且计数 12 vs 13 | migration:345（12/12/1） ↔ 探针 13/13/**1** | 以探针为断代点，计数差记为扫描口径差（VD-015-016-03） |
 | 7 | `plugins.item` kind 不兼容平移 | 新线 `list`（AUX slot-contract:88） ↔ 老线 `keyed`+key=NS（OLD:164/:167-192） | 定为「不可平移的老线契约」（VD-011-012-03 vs VD-016-017-04） |
 | 8 | `.volatile()`「0.1.6 调用即抛」 | 定谳事实 3（保留原断言） ↔ 探针源码级可证无该方法；migration:542 反证 feature-detect 可跨线 | VERIFIED(源码级) + 装机运行时 PENDING；限定「仅无条件链式才成立」（VD-015-016-04） |
-| 9 | engines=加载器预检闸门（静默禁用） | INDEX §C:43-44、09 §1.3:59-61、rollout:22、version-dist F1 ↔ 定谳事实 1 + `plugin-compatibility.ts:61-88` + AUX README:52 + migration:415/:417 | D 标 SUPERSEDED、C 降为元数据卫生（不参与 runtime 分级） |
+| 9 | engines=加载器预检闸门（静默禁用） | INDEX §C:43-44、09 §1.3:59-61、rollout:22、version-dist F1 ↔ 定谳事实 1 + `plugin-compatibility.ts:61-88` + AUX README:52 + migration:415/:417 | D 标 SUPERSEDED、C 降为元数据卫生（不参与 runtime 分级）。**⚠ 2026-10-17 再翻案：≥0.2.1-alpha.4 宿主确实读 `engines.dsh` 且单独裁决（VD-020-021-01）——定谳事实 1 仅对 ≤0.2.1-alpha.3 成立，旧文档的「engines 有用」在新时代部分复活** |
 | 10 | 命名 `bindInjectHooks` 源码 0 命中；11 号 A6 存在同日自勘误链 | 11:55、12:54 ↔ MAIN `packages/` 全量 grep 0 命中；真实锚为 renderer.ts:42-44 + index.ts:563-564/:584-591 | 机制 CONFIRMED、命名 UNVERIFIED；契约文本以 12 号 v1.0 为准（VD-017-020-03、D §4/§5） |

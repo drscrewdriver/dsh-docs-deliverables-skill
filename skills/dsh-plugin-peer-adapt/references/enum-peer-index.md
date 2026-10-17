@@ -17,9 +17,11 @@ export const supportedHosts = Object.freeze([
   "0.1.5-rc.1", "0.1.5-rc.2", "0.1.5-rc.3",
   "0.1.7-rc.1", "0.1.7-rc.2",
   "0.2.0-rc.1", "0.2.0-rc.2",
+  // 0.2.1 线（2026-10-17 增）：至少尾档 rc.1；要覆盖预发布消费者再列 alpha.4/5
+  "0.2.1-alpha.4", "0.2.1-alpha.5", "0.2.1-rc.1",
 ]);
 export const peerRange = supportedHosts.join(" || ");
-export const developmentHost = "0.2.0-rc.2";   // devDependencies 全部钉这里
+export const developmentHost = "0.2.1-rc.1";   // devDependencies 全部钉这里
 ```
 
 - 下限按插件**实际验证过**的线裁剪（裁剪结果与逐条理由写在各插件包 spec.md §3.1，本文不重复各插件数字）；
@@ -38,11 +40,17 @@ export const developmentHost = "0.2.0-rc.2";   // devDependencies 全部钉这�
 | `>=0.1.7-rc.1 <0.1.8-0` | 匹配 | `-0` 上界写法健全，不泄漏 `0.1.8-rc.1` |
 | `0.1.7-rc.2 \|\| 0.2.0-rc.2` | 匹配 | 精确枚举精确匹配，无暗坑 |
 
-规则根源：预发布版本只能被带相同 `[major,minor,patch]` 三元组的预发布比较器匹配。**任何跨线的 `^x.y.z-rc.n` OR 都是假声明**——枚举法的直接动机之一就是让这类错误从"隐式事故"变成"显式决定"。
+规则根源：预发布版本只能被带相同 `[major,minor,patch]` 三元组的预发布比较器匹配。**任何跨线的 `^x.y.z-rc.n` OR 都是假声明**——枚举法的直接动机之一就是让这类错误从“隐式事故”变成“显式决定”。
 
-## §C 双闸门口径与 sync-hosts
+> **0.2.1 三元组内补则（2026-10-17，semver 预发布标识符序）**：同三元组内 `alpha.1 < alpha.5 < rc.1 < (无后缀稳定版)`；includePrerelease 下 `^0.2.1-alpha.1` 可命中至 rc.1 及 0.2.1 稳定版；`>=0.2.1-rc.1` **不含** alpha；精确枚举写到 alpha.5 会**漏 rc.1**（需逐项补）。rc.1 本身与 a.5 代码面全等（纯 bump），矩阵可用 a.5 的实测结论外推——这是 0.2.1 线唯一允许的外推。
 
-- `engines.dsh` = **加载器预检闸门**（不满足被启动预检静默禁用）；`peerDependencies` = **包管理器闸门**（host profile 安装时由 npm/pnpm 校验，`--config.auto-install-peers=true`）。两闸门口径不一致就是事故源（mcp-registry 0.2.0 拒装、0.2.1 挂载报错，见其 README 版本表）。
+## §C 双闸门口径与 sync-hosts（**双时代，分界 0.2.1-alpha.4**）
+
+- **≤0.2.1-alpha.3**：`engines.dsh` 不被宿主读取（纯装饰/元数据卫生 P2）；`peerDependencies` 是唯一闸门判据——本节后续“双闸门口径一致”的全部论述在此时代成立。
+- **≥0.2.1-alpha.4（含 rc.1）**：包自身 `engines.dsh` **单独裁决**（dsh peers 全忽略）；无该键才回落 peer 规则。此时 engines.dsh 升为 **P0 生死字段**：范围必须覆盖全部目标线（或被删）；`workspace:` 值被拒；`engines` 非对象/`engines.dsh` 非字符串=拒载；拒载记录字段 `peers`→`requirements`。官方指南 `docs/upgrade-guide/v0.2.1-alpha.3/plugin-engines-dsh/`；卡 VD-020-021-01。
+- 实操建议（新时代）：要么**不写 engines.dsh**（保持 peer 枚举全部既有纪律不变），要么写了就把它当主判据复核一遍目标矩阵；两写并存时 sync-hosts 必须同源同范围，否则新时代行为只认 engines。
+
+- （时代一原文保留）`engines.dsh` = **加载器预检闸门**（不满足被启动预检静默禁用）；`peerDependencies` = **包管理器闸门**（host profile 安装时由 npm/pnpm 校验，`--config.auto-install-peers=true`）。两闸门口径不一致就是事故源（mcp-registry 0.2.0 拒装、0.2.1 挂载报错，见其 README 版本表）。注：「静默禁用」这一说在 §C 双闸门表（2026-10-11 版）基础上已被 a.4 实证修正为 engines 优先裁决。
 - 本批决定（§G-1）：**engines.dsh 保留/补建，与 peer 同源枚举**，由增强版 sync-hosts 一并下发，禁止手改。注意参考实现（dsh-skills-manager v1.1.8）本身不同步 engines（其 engines 只有 node）——本批从 09 指导 §1.3 从严，补齐这一缺口（§D.2）。
 - mcp-registry 现状 engines 在 package.json **双写两处**（`dsh.engines` :22 与顶层 `engines` :68），收敛时两处都要覆盖。
 - **engines/manifest 写点全景（2026-10-04 核实，§G-6）**：写点载体因仓而异，最多三种——package.json `engines`、package.json `dsh.engines`、`dsh.plugin.json`/`dsh-plugin.json` 的 `engines`（date-wrapper/preset-manager/input-traffic/arrowkey-nav 有 dsh.plugin.json 写点；mcp-registry 为连字符 `dsh-plugin.json`；paste-dock/tidy-display 无插件 manifest）。**preset-manager 两处 engines 互相矛盾**（package.json `>=0.1.1-rc.1` vs dsh.plugin.json `>=0.1.7-rc.1 <0.1.8-0`）；date-wrapper/preset-manager/mcp-registry 的 manifest version 与 package.json version 漂移（0.2.0-beta.2 vs 0.2.0、0.3.0 vs 0.4.0、0.2.3 vs 0.2.9）。因此 sync-hosts 增强（§D.2）必须**覆盖全部写点收敛 + manifest version 同步**，否则双闸门口径一致只是纸面的；各仓写点明细见各插件包 findings.md §1.1/§1.2。
@@ -107,3 +115,10 @@ export const developmentHost = "0.2.0-rc.2";   // devDependencies 全部钉这�
 - **DSH-PLUGIN-COMPATIBILITY-GUIDE.md**（`improve-dsh-plugins/`）：运行时检测 + 双 API 回退，与枚举法互补，仅引用不回写
 - **adaptation-reports/**（`mine-dsh-plugins/`）：2026-09-11 面向 v0.1.5-rc.2 的上一代分析，仅作历史证据，**禁止当现状引用**（其 SUMMARY 矩阵版本号均已过期）
 - **dsh-arrowkey-nav-0.1.7-0.2.0-失效根因分析.md**（`mine-dsh-plugins/`）：P3 全部技术依据（断点提交 `6830e1460d`、修复方案、DOM 核对表），按节引用不复制
+
+## §I 0.2.1 线基线增补（2026-10-17，宿主 tag dsh-v0.2.1-alpha.1..5 / rc.1 已发布）
+
+1. **新线 rc 清单**（npm 实测，追加进 `supportedHosts` 前逐格验证）：`0.2.1-alpha.1/2/3/4/5` 与 `0.2.1-rc.1`；均同一三元组 `0.2.1`，故 `^0.2.1-alpha.1` 经 `includePrerelease` 可全命中（含 rc.1）；枚举写法直接追加各项即可。
+2. **§Global Decision #1「双闸口 engines.dsh」已成现实但语义反转**：旧口径下 engines.dsh 是无害冗余（闸门不读）；**≥0.2.1-alpha.4 它单独裁决、peers 被忽略**——双闸口策略从此有了真实代价：engines.dsh 写窄 = 新宿主直接拒装；写 `workspace:` = 新宿主判不兼容；非字符串 = 拒载。要广兼容建议**不写 engines.dsh**（旧宿主本就忽略它，新宿主回退 peer 规则，两时代行为一致）。
+3. **拒载记录消费面**：`IncompatiblePlugin`/`PluginCompatibility` 的 `peers` 字段在 ≥a.4 改名 `requirements`——读拒载记录的 sync/测试脚本改 `requirements ?? peers` 双读。
+4. **逐段断代面索引**：a.1 显示面/装载语义、a.2 编排 API/provider、a.3 客户端契约符号（`projectUserText`/`RenderMessageImages`/`OperatorPeer` 等删除）、a.4 闸门换代、a.5 通知形状、rc.1 纯 bump——全量证据见 `<ws>/mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-*` 与台账 §7（VD-020-021-01..05）；合并处方见 `plugin-framework/v0.2.1-migration.md`。

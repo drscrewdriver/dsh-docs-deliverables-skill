@@ -8,18 +8,19 @@
 # ⚠️ FARM 假满足警示（全局适用）：farm 是共享工作格的六线常驻沙盒，跨格 peer hoist 会让「某线本不具备的能力」
 #    在实测中显示可用；凡 marked: FARM 的格，结论只能证「测过的那一格当时可用」，不得外推为该线能力。
 # 六线定义遵守定谳事实 6：0.1.0-rc.8 / 0.1.1-rc.2 / 0.1.2-rc.1 / 0.1.5-rc.3 / 0.1.7-rc.2 / 0.2.0-rc.2。
+# 2026-10-17 增补 0.2.1 线两档（alpha.3 = 纯 peer 时代尾声；rc.1 = engines.dsh 时代现职尾版）与探针行。**0.2.1 线于本版后追加（a.3/a.5/rc.1 探针已入）**。
 
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，可 tag 探针
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1 全 tag（0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
   probe_metric: "git grep -l <pattern> <tag> 命中文件数（源码级存在性，不证运行时渲染）"
-  gate_source: "packages/boot/app-boot/src/plugin-compatibility.ts:61-88@0.1.7-rc.2+0.2.0-rc.2"
+  gate_source: "packages/boot/app-boot/src/plugin-compatibility.ts:61-88@0.1.7-rc.2+0.2.0-rc.2（纯 peer 时代）；同文件@0.2.1-alpha.4（engines.dsh 优先时代，unmetRequirements()，peers→requirements）"
   invariants:
-    - "跨线解锁唯一开关 = 放宽 package.json peerDependencies range；engines.dsh / dsh.plugin.json / dependencies 均不被闸门读取"
+    - "闸门判定双时代：≤0.2.1-alpha.3 唯一开关=放宽 peerDependencies range（engines.dsh 不被读）；≥0.2.1-alpha.4 包自带 engines.dsh 即单独裁决（peers 被忽略；workspace: 在该键非法；形状错=拒载），无该键仍回 peer 规则。两时代 dsh.plugin.json/dependencies 均不被读"
     - "适配分派只允许 typeof / inject 能力探测，禁止读宿主版本号（10 号手册:9-10）"
     - "settings.register() 作为服务方法三代均不存在（OLD settings/src/index.ts:445 系错误标签模板，:472 为 installSection 定义）"
 
@@ -220,6 +221,51 @@ lines:
       marked: VERIFIED
       anchors: ["VD-017-020-08"]
 
+  - id: dsh-0.2.1-alpha.3
+    generation: 3
+    inherits_from: dsh-0.2.0-rc.2
+    settings_registration_api:
+      value: "与 0.2.0 零断代（configForms 消费点 75→78 仅增量）；闸门/settings 核心/vendor 内容未动；探针 inst=3 为噪声（windows-directory-installer 的 NSIS 安装分区同名，非设置注册 API）"
+      marked: VERIFIED
+      anchors: ["VD-020-021-02", "source-analysis/v0.2.1-alpha.3/README.md"]
+    client_card_seat:
+      value: "⚠ 槽位家族换代：conversation.message.images 拆为 conversation.chat.{message,user}.images（旧名注入静默失效）；新槽 hero.options/user.text.node/workspace.toast；客户端具名导出成批删除（projectUserText/RenderMessageImages/OperatorPeer 等）"
+      marked: VERIFIED
+      anchors: ["VD-020-021-03", "slot-catalog.ts a.2→a.3 +627/−179"]
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "**纯 peer 时代终点**：本 tag 闸门仍只读 peers、不读 engines.dsh；下一 tag（alpha.4）即换判据——写 range 时务必区分 a.3/a.4 两侧"
+      marked: VERIFIED
+      anchors: ["VD-020-021-01", "plugin-compatibility.ts@a.3 vs @a.4 tag diff"]
+    key_package_names:
+      value: "新增能力包：api/remote-access(ctx.remoteAccess)、client/ui-secret-mask、experimental/cua(+cua-macos)、context/harness-dev-context(ctx.webApp)；SESSION_FORMAT_VERSION 恒 4（+2 同版本承认）"
+      marked: VERIFIED
+
+  - id: dsh-0.2.1-rc.1
+    generation: 3
+    inherits_from: dsh-0.2.1-alpha.3
+    settings_registration_api:
+      value: "零断代（与 a.3 探针同值 cf=78/vol=1/dpc=2/card=1）；gate 消费点 7→10、loc 5→12、rowcfg/detail/allowver 微增（a.4 闸门换代 + 市场/语言面扩容）"
+      marked: VERIFIED
+      anchors: ["probe_matrix rows dsh-v0.2.1-rc.1"]
+    client_card_seat:
+      value: "a.4 +plugins.tab（市场 Discover）；a.5 +conversation.input.model.label；无删除（a.3 家族换代后稳定）"
+      marked: VERIFIED
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "**engines.dsh 时代**（自 a.4）：包自带 engines.dsh 单独裁决（peers 忽略）；无该键回 peer 规则；workspace: 仅 peers 合法；engines 形状错=拒载；拒载记录字段 peers→requirements。runtime 字符串为 0.2.1-rc.1，`^0.2.1-alpha.1` 经 includePrerelease 可命中"
+      marked: VERIFIED
+      anchors: ["plugin-compatibility.ts@0.2.1-alpha.4", "指南 v0.2.1-alpha.3/plugin-engines-dsh", "VD-020-021-01"]
+    key_package_names:
+      value: "a.4 新增 plugin-market 族（ctx.pluginMarket）；vendor 转正式线 cordis 4.0.5/schemastery 3.18.5/loader 1.0.6/hmr 1.0.20（rc.1 随 PR #6388）；rc.1 相对 a.5 代码面零差异（纯 bump）"
+      marked: VERIFIED
+      anchors: ["VD-020-021-05"]
+    note: "0.2.1 线内断代点：a.1（显示面/挂载制）、a.2（编排 API ×10）、a.3（消费契约三类，闸门仍零 diff）、**a.4（闸门换代——gate 列分水岭）**、a.5（通知形状）；a.5→rc.1 零代码 diff。逐段细节 → source-analysis/v0.2.1-*"
+
   - id: dsh-future
     generation: unknown
     placeholder: true
@@ -234,9 +280,9 @@ lines:
       value: "TBD"
       marked: UNVERIFIED
     gate_peer_range_semantics:
-      value: "假定沿用 peer-only 闸门；变更须以 plugin-compatibility.ts 实际代码为准，禁止据 engines 或 manifest 推测"
+      value: "**engines.dsh 优先已成现实（≥0.2.1-alpha.4）**；后续变更仍以 plugin-compatibility.ts 实际代码为准，禁止据旧版 peer-only 铁律推测"
       marked: PENDING
-      anchors: ["定谳事实 1", "INDEX §C:43-44（engines 说法已 SUPERSEDED）"]
+      anchors: ["VD-020-021-01", "INDEX §C:43-44（旧 SUPERSEDED 记录已被 a.4 反转：engines.dsh 自 a.4 确实被闸门读取）"]
     key_package_names:
       value: "TBD —— 已知候选断代信号：会话格式版本（migration:394 V3→V4）、service seam 增减（migration:437-439 97→115）"
       marked: PENDING
@@ -257,6 +303,7 @@ probe_matrix:
     allowver: allow-version
     loc: "locale/en.json（boot 读取面）"
     snap: snapshotEvents
+    edsh: "engines.dsh（闸门时代判据：≤a.3 仅文档/模板提及，≥a.4 含闸门本体）"
   rows:
     - { tag: dsh-v0.1.0-rc.8,  iss: 11, inst: 0,  scope: 40, cf: 0,  vol: 0, gate: 0, dpc: 0, card: 11, rowcfg: 0,  detail: 0, allowver: 0, loc: 0, snap: 0 }
     - { tag: dsh-v0.1.1-rc.2,  iss: 11, inst: 0,  scope: 40, cf: 0,  vol: 0, gate: 0, dpc: 0, card: 11, rowcfg: 0,  detail: 0, allowver: 0, loc: 0, snap: 0 }
@@ -266,6 +313,8 @@ probe_matrix:
     - { tag: dsh-v0.1.6-alpha.2, iss: 0, inst: 16, scope: 40, cf: 0, vol: 0, gate: 0, dpc: 2, card: 1,  rowcfg: 12, detail: 0, allowver: 0, loc: 0, snap: 204 }
     - { tag: dsh-v0.1.7-rc.1,  iss: 0,  inst: 0,  scope: 0,  cf: 67, vol: 1, gate: 7, dpc: 2, card: 1,  rowcfg: 10, detail: 8, allowver: 4, loc: 2, snap: 209 }
     - { tag: dsh-v0.2.0-rc.2,  iss: 0,  inst: 0,  scope: 0,  cf: 75, vol: 1, gate: 7, dpc: 2, card: 1,  rowcfg: 10, detail: 8, allowver: 4, loc: 2, snap: 211 }
+    - { tag: dsh-v0.2.1-alpha.3, iss: 0, inst: 3, scope: 0, cf: 78, vol: 1, gate: 7, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 5, snap: 261, edsh: 4 }
+    - { tag: dsh-v0.2.1-rc.1,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
   directory_probe:
     packages_client: { dsh-v0.1.0-rc.8: runtime, dsh-v0.1.2-rc.1: store, dsh-v0.1.7-rc.1: store, dsh-v0.2.0-rc.2: store }
     settings_namespace_export: { dsh-v0.1.0-rc.8: 34, dsh-v0.1.5-rc.3: 2, note: "0.1.5 的 2 处为无关局部命名（api/settings-controller/src/index.ts:33,:266 与 ui-settings-models/tests/onboarding-dialog.client.spec.tsx:70,:119,:248），具名导出已消失" }
