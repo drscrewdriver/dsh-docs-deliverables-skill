@@ -13,7 +13,7 @@
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1 全 tag（0.2.1 线探针用 git show|grep <tag>）
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2 全 tag（rc.2=master tip；0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
@@ -264,7 +264,29 @@ lines:
       value: "a.4 新增 plugin-market 族（ctx.pluginMarket）；vendor 转正式线 cordis 4.0.5/schemastery 3.18.5/loader 1.0.6/hmr 1.0.20（rc.1 随 PR #6388）；rc.1 相对 a.5 代码面零差异（纯 bump）"
       marked: VERIFIED
       anchors: ["VD-020-021-05"]
-    note: "0.2.1 线内断代点：a.1（显示面/挂载制）、a.2（编排 API ×10）、a.3（消费契约三类，闸门仍零 diff）、**a.4（闸门换代——gate 列分水岭）**、a.5（通知形状）；a.5→rc.1 零代码 diff。逐段细节 → source-analysis/v0.2.1-*"
+    note: "0.2.1 线内断代点：a.1（显示面/挂载制）、a.2（编排 API ×10）、a.3（消费契约三类，闸门仍零 diff）、**a.4（闸门换代——gate 列分水岭）**、a.5（通知形状）；a.5→rc.1 零代码 diff；rc.1→rc.2 两小功能包零断裂（见 dsh-0.2.1-rc.2 条目）。逐段细节 → source-analysis/v0.2.1-*"
+
+  - id: dsh-0.2.1-rc.2
+    generation: 3
+    inherits_from: dsh-0.2.1-rc.1
+    settings_registration_api:
+      value: "与 rc.1 探针 13 列逐项全等（cf=78/vol=1/gate=10/loc=12…）；闸门/settings src/vendor/types.ts 零 diff"
+      marked: VERIFIED
+      anchors: ["probe_matrix rows dsh-v0.2.1-rc.2", "VD-020-021-08"]
+    client_card_seat:
+      value: "无槽增删；conversation.input.model.label 出现首个官方 occupant（ui-deepseek-model-label-1017，replaceRisk none→shadows-shipped-ui）"
+      marked: VERIFIED
+      anchors: ["VD-020-021-08", "source-analysis/v0.2.1-rc.2/"]
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "engines.dsh 时代延续；runtime 字符串 `0.2.1-rc.2`，同三元组——`^0.2.1-alpha.1` 与枚举写法无需为 rc.2 改动"
+      marked: VERIFIED
+      anchors: ["VD-020-021-01", "VD-020-021-08"]
+    key_package_names:
+      value: "2 新包：web/web-deepseek-api（既有 ctx.web 缝 provider，settings 开关后）+ client/ui-deepseek-model-label-1017；+1 同版本承认 deepseek-search-thinking；升级指南 0 篇"
+      marked: VERIFIED
 
   - id: dsh-future
     generation: unknown
@@ -315,6 +337,8 @@ probe_matrix:
     - { tag: dsh-v0.2.0-rc.2,  iss: 0,  inst: 0,  scope: 0,  cf: 75, vol: 1, gate: 7, dpc: 2, card: 1,  rowcfg: 10, detail: 8, allowver: 4, loc: 2, snap: 211 }
     - { tag: dsh-v0.2.1-alpha.3, iss: 0, inst: 3, scope: 0, cf: 78, vol: 1, gate: 7, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 5, snap: 261, edsh: 4 }
     - { tag: dsh-v0.2.1-rc.1,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
+    # rc.2 行：以下全部列与 rc.1 逐项全等（同命令同口径两 tag 实测相等，含 edsh/loc 收窄口径；2026-10-17 核）
+    - { tag: dsh-v0.2.1-rc.2,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
   directory_probe:
     packages_client: { dsh-v0.1.0-rc.8: runtime, dsh-v0.1.2-rc.1: store, dsh-v0.1.7-rc.1: store, dsh-v0.2.0-rc.2: store }
     settings_namespace_export: { dsh-v0.1.0-rc.8: 34, dsh-v0.1.5-rc.3: 2, note: "0.1.5 的 2 处为无关局部命名（api/settings-controller/src/index.ts:33,:266 与 ui-settings-models/tests/onboarding-dialog.client.spec.tsx:70,:119,:248），具名导出已消失" }

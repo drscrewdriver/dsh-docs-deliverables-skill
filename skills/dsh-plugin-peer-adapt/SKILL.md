@@ -67,7 +67,7 @@ description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0
 
 1. **兼容性闸门判定面（双时代，VERIFIED@源码锚定）**：
    - **纯 peer 时代（0.1.7-rc.1 ～ 0.2.1-alpha.3）**：宿主只读插件 `package.json.peerDependencies` 中 `@deepseek-ai/dsh`/`@deepseek-ai/dsh-*` 前缀项，`semver.satisfies(runtime, range, {includePrerelease:true})`；**不读 engines.dsh、不读 dsh.plugin.json**（锚 `packages/boot/app-boot/src/plugin-compatibility.ts:61-88@0.1.7-rc.2+0.2.0-rc.2`，0.2.1-alpha.1..3 零 diff）。
-   - **engines.dsh 时代（≥0.2.1-alpha.4，含 rc.1）**：包自带 `engines.dsh` range **单独决定**兼容性（peers 全忽略）；无该键才回落 peer 规则。`workspace:` 值只在 peers 合法（engines.dsh 内判不兼容）；`engines` 非对象/`engines.dsh` 非字符串 → **拒载**。拒载记录字段 `peers` 改名 **`requirements`**（`IncompatiblePlugin` 与 app-boot `PluginCompatibility` 同步；锚 `plugin-compatibility.ts@0.2.1-alpha.4` + 官方指南 `docs/upgrade-guide/v0.2.1-alpha.3/plugin-engines-dsh/`）。跨线解锁开关：无 engines.dsh 的包仍是放宽 peer range；有则改 range 本身（或删键回退 peer 规则）；`dsh plugin allow-version` 豁免语义两时代不变。
+   - **engines.dsh 时代（≥0.2.1-alpha.4，含 rc.1/rc.2）**：包自带 `engines.dsh` range **单独决定**兼容性（peers 全忽略）；无该键才回落 peer 规则。`workspace:` 值只在 peers 合法（engines.dsh 内判不兼容）；`engines` 非对象/`engines.dsh` 非字符串 → **拒载**。拒载记录字段 `peers` 改名 **`requirements`**（`IncompatiblePlugin` 与 app-boot `PluginCompatibility` 同步；锚 `plugin-compatibility.ts@0.2.1-alpha.4` + 官方指南 `docs/upgrade-guide/v0.2.1-alpha.3/plugin-engines-dsh/`）。跨线解锁开关：无 engines.dsh 的包仍是放宽 peer range；有则改 range 本身（或删键回退 peer 规则）；`dsh plugin allow-version` 豁免语义两时代不变。
 2. **semver 预发布三结论**（semver 包实测）：`^x.y.z-rc.n || …` 只连同三元组 rc，**跨线 caret 是假声明**；`>=a-rc.1 <b-0` 上界健全；精确枚举 `A || B` 无暗坑。`<0.2.0-0` 拒所有 `0.2.0-rc.x`。
 3. **三层模型**（适配的实质）：元数据层（hosts.mjs→peerRange→sync-hosts 单源下发）→ 验证层（CI 逐 rc 真机矩阵）→ 运行时层（能力探测窄腰）。只抄 peer 不抄 CI = 把没验证的版本写进白名单。
 4. **版本识别三级优先**：能力探测（`typeof x==='function'`，禁止读版本号）> 宿主版本号双锚点（realpath+prefix）> **禁止**用插件自己 node_modules 判宿主。分支决策集中一个窄腰文件。
@@ -80,7 +80,7 @@ description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0
 
 ## 参考分片（按需加载，勿全读）
 
-- `references/version-delta-ledger.md` — 37 变化卡（本技能核心数据）
+- `references/version-delta-ledger.md` — 45 变化卡（本技能核心数据）
 - `references/host-matrix.yaml` — 七线×5 列矩阵 + git tag 探针取证
 - `references/gate-checklist.md` — D1-D11/V1-V6/G1-G6/T 门禁 42 条（分级已按裁决重标）
 - `references/settings-registration-migration.md` — installSection 迁移 549 行全篇（三代定性+处方）

@@ -2,7 +2,7 @@
 # 结构: claim_id → source(原文档§位置) → evidence(file:line@宿主版本 | 复现命令) → status
 # status: VERIFIED(源码命中) / FARM(farm 实测,静态源码不可复核) / PENDING(待核) / CONFLICT-ADJUDICATED(已裁决) / UNVERIFIED(保留不收录正文)
 # 复核纪律: 宿主每升 rc 后逐条重跑 evidence;未命中→对应 skill 段落加「⚠ 待重新核实 <date>」
-# 基准: MAIN=deepseek-harness(0.2.0-rc.2, 含 dsh-v0.2.1-alpha.1..5/rc.1 全 tag，0.2.1 线探针直接 git show/grep <tag>) / AUX=.harness-017rc2-wt(0.1.7-rc.2) / OLD=dsh-repo(0.1.5-rc.2)
+# 基准: MAIN=deepseek-harness(0.2.0-rc.2, 含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2 全 tag，0.2.1 线探针直接 git show/grep <tag>) / AUX=.harness-017rc2-wt(0.1.7-rc.2) / OLD=dsh-repo(0.1.5-rc.2)
 # 建档: 2026-10-11 ｜ 0.2.1 线追加: 2026-10-17
 
 meta:
@@ -20,6 +20,7 @@ claims:
       - MAIN: git diff dsh-v0.2.1-alpha.3 dsh-v0.2.1-alpha.4 -- packages/boot/app-boot/src/plugin-compatibility.ts  # +43/−29：unmetRequirements()；engines.dsh 存在即单独裁决
       - MAIN: git grep -n requirements dsh-v0.2.1-alpha.4 -- packages/boot/app-boot/src/plugin-compatibility.ts    # PluginCompatibility.peers→requirements 改名
       - MAIN: git show dsh-v0.2.1-alpha.5:packages/boot/app-boot/src/plugin-compatibility.ts                      # a.4→a.5、a.5→rc.1 闸门零 diff（时代边界只在 a.3/a.4 之间）
+      - MAIN: git diff --stat dsh-v0.2.1-rc.1 dsh-v0.2.1-rc.2 -- packages/boot/app-boot/src/plugin-compatibility.ts  # rc.2 仍零 diff（master tip=rc.2，2026-10-17 核）
     status: VERIFIED           # 2026-10-17 新立；⚠ 本 claim 反转 gate-peer-only-authority 的适用边界（仅≤0.2.1-alpha.3 继续成立）
     feeds: [peer-adapt SKILL 核心定论1, VD-020-021-01, host-matrix dsh-0.2.1-* 条目, plugin-framework/v0.2.1-migration.md §0]
 

@@ -567,6 +567,18 @@
 | 证据 | VERIFIED：`git log dsh-v0.2.1-alpha.3..dsh-v0.2.1-alpha.4` 锚定 + source-analysis v0.2.1-alpha.4 |
 | 先例仓 | dshmarket 类第三方市场页插件 |
 
+### VD-020-021-08 · 0.2.1-rc.2 功能补丁车（症状：模型标签被官方 1017 徽章遮蔽 / web 搜索多了 provider）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | 两新包零契约断裂（当前 master tip `687f282e86`）：① `web/web-deepseek-api`——DeepSeek Search/Fetch API 作为**既有 `ctx.web` 缝 provider** 进门（settings 开关后，`tool-web` 工具名不变；`fda98dadd2` PR #6103）；② `client/ui-deepseek-model-label-1017`——Flash 1017 徽章成 `conversation.input.model.label` 槽**首个官方 occupant**，`replaceRisk: none→shadows-shipped-ui`（`3c937cd0ba`；改 bundled 显示名前案已 revert `32efe36a4e`）；③ +1 同版本承认 deepseek-search-thinking |
+| 断裂面 | 闸门/settings 核心/vendor/slot 结构/`types.ts` 零 diff；探针 13 列 rc.1↔rc.2 逐项全等；升级指南 0 篇 |
+| 运行时症状 | 同挂 `conversation.input.model.label` 的自定义标签与官方徽章同屏竞争（注入仍生效） |
+| 检测点代码 | 不适用（版本层行为）；同槽插件用运行态截图核对 |
+| 兜底处方 | peer/engines 写法无需为 rc.2 改动（同三元组，`^0.2.1-alpha.1` 天然命中；枚举直接追加 `0.2.1-rc.2`） |
+| 证据 | VERIFIED：tag 探针（`git diff rc.1 rc.2` 逐面）+ slot-catalog occupants diff + capability-seams provider 行 |
+| 先例仓 | 自挂模型标签/徽章类插件（tidy-display 族） |
+
 ---
 
 ## 附：症状词 → VD-ID 路由候选表（供 SKILL.md 首屏，症状词做首词）
@@ -609,6 +621,7 @@
 | 客户端具名符号 import 编译不过 / 旧槽注入静默无渲染 | VD-020-021-03 | — |
 | 账号通知元数据读空 / orderId 非 UUID | VD-020-021-04 | — |
 | rc.1 与 alpha.5 差异 | VD-020-021-05 | — |
+| 模型标签被官方 1017 徽章遮蔽 / rc.2 装载差异 | VD-020-021-08 | — |
 | run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留 / webRuntime 失效 | VD-020-021-06 | — |
 | 升级宿主后插件不更新 / 官方插件市场 | VD-020-021-07 | VD-020-021-01 |
 
@@ -624,8 +637,8 @@
 | §4 0.1.5→0.1.6 | 6 | 5 | 0 | 1 | 0 |
 | §5 0.1.6→0.1.7 | 10 | 9 | 0 | 1 | 0 |
 | §6 0.1.7→0.2.0 | 8 | 5 | 1 | 2 | 0 |
-| §7 0.2.0→0.2.1（含线内断代） | 7 | 7 | 0 | 0 | 0 |
-| **合计** | **44** | **38** | **2** | **4** | **0** |
+| §7 0.2.0→0.2.1（含线内断代） | 8 | 8 | 0 | 0 | 0 |
+| **合计** | **45** | **39** | **2** | **4** | **0** |
 
 > 说明：VD-016-017-07（bind 面 `update`→`mutate`/+`dispose`）已并入 VD-016-017-03 的迁移公式条目；VD-011-012-02b 为补号卡。
 > 等级取卡内**最高可用级**（同卡内若部分 PENDING 已在字段栏注明，不因局部待证降级）。

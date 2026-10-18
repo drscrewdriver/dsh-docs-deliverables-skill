@@ -118,7 +118,7 @@ export const developmentHost = "0.2.1-rc.1";   // devDependencies 全部钉这�
 
 ## §I 0.2.1 线基线增补（2026-10-17，宿主 tag dsh-v0.2.1-alpha.1..5 / rc.1 已发布）
 
-1. **新线 rc 清单**（npm 实测，追加进 `supportedHosts` 前逐格验证）：`0.2.1-alpha.1/2/3/4/5` 与 `0.2.1-rc.1`；均同一三元组 `0.2.1`，故 `^0.2.1-alpha.1` 经 `includePrerelease` 可全命中（含 rc.1）；枚举写法直接追加各项即可。
+1. **新线 rc 清单**（npm 实测，追加进 `supportedHosts` 前逐格验证）：`0.2.1-alpha.1/2/3/4/5` 与 `0.2.1-rc.1`、`0.2.1-rc.2`（当前 master tip，两小功能包零断裂）；均同一三元组 `0.2.1`，故 `^0.2.1-alpha.1` 经 `includePrerelease` 可全命中（含 rc.1/rc.2）；枚举写法直接追加各项即可。
 2. **§Global Decision #1「双闸口 engines.dsh」已成现实但语义反转**：旧口径下 engines.dsh 是无害冗余（闸门不读）；**≥0.2.1-alpha.4 它单独裁决、peers 被忽略**——双闸口策略从此有了真实代价：engines.dsh 写窄 = 新宿主直接拒装；写 `workspace:` = 新宿主判不兼容；非字符串 = 拒载。要广兼容建议**不写 engines.dsh**（旧宿主本就忽略它，新宿主回退 peer 规则，两时代行为一致）。
 3. **拒载记录消费面**：`IncompatiblePlugin`/`PluginCompatibility` 的 `peers` 字段在 ≥a.4 改名 `requirements`——读拒载记录的 sync/测试脚本改 `requirements ?? peers` 双读。
-4. **逐段断代面索引**：a.1 显示面/装载语义、a.2 编排 API/provider、a.3 客户端契约符号（`projectUserText`/`RenderMessageImages`/`OperatorPeer` 等删除）、a.4 闸门换代、a.5 通知形状、rc.1 纯 bump——全量证据见 `<ws>/mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-*` 与台账 §7（VD-020-021-01..05）；合并处方见 `plugin-framework/v0.2.1-migration.md`。
+4. **逐段断代面索引**：a.1 显示面/装载语义、a.2 编排 API/provider、a.3 客户端契约符号（`projectUserText`/`RenderMessageImages`/`OperatorPeer` 等删除；注：`WorkspaceTypertGenerator` 为扫描误报，index 仍再导出）、a.4 闸门换代、a.5 通知形状、rc.1 纯 bump、rc.2 两小功能包零断裂（web-deepseek-api + 1017 徽章）——全量证据见 `<ws>/mine-dsh-plugins/dsh-docs-deliverables/source-analysis/v0.2.1-*` 与台账 §7（VD-020-021-01..08）；合并处方见 `plugin-framework/v0.2.1-migration.md`。
