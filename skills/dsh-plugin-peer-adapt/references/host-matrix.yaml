@@ -287,6 +287,7 @@ lines:
     key_package_names:
       value: "2 新包：web/web-deepseek-api（既有 ctx.web 缝 provider，settings 开关后）+ client/ui-deepseek-model-label-1017；+1 同版本承认 deepseek-search-thinking；升级指南 0 篇"
       marked: VERIFIED
+    note: "⚠️ 零断裂仅在 seam/tool-name 形状层；packages/web/web/src/index.ts 在 rc.1→rc.2 把 ctx.web 的 searchProvider/fetchProvider 钉选从构造期快照的 `readonly string`（private searchProviderId/fetchProviderId）改为 `Volatile<string|undefined>`（`z.string().volatile()`，调用点 `config.*.get()` 实时读）。依赖内存赋值/构造注入接管 search/fetch provider 的插件会静默失效——需改用 settings.mutate 持久钉选（VERIFIED: git diff dsh-v0.2.1-rc.1 dsh-v0.2.1-rc.2 -- packages/web/web/src/index.ts）"
 
   - id: dsh-future
     generation: unknown
