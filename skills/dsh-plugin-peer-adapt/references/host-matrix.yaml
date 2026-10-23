@@ -9,11 +9,12 @@
 #    在实测中显示可用；凡 marked: FARM 的格，结论只能证「测过的那一格当时可用」，不得外推为该线能力。
 # 六线定义遵守定谳事实 6：0.1.0-rc.8 / 0.1.1-rc.2 / 0.1.2-rc.1 / 0.1.5-rc.3 / 0.1.7-rc.2 / 0.2.0-rc.2。
 # 2026-10-17 增补 0.2.1 线两档（alpha.3 = 纯 peer 时代尾声；rc.1 = engines.dsh 时代现职尾版）与探针行。**0.2.1 线于本版后追加（a.3/a.5/rc.1 探针已入）**。
+# 2026-10-24 追加 dsh-0.2.1-rc.3（导航条目自定义车：slot +3；New Session 空白复用带官方指南 1 篇；DeepSeek 跟官方 /models）卡片与探针行；现尾版=rc.3。
 
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2 全 tag（rc.2=master tip；0.2.1 线探针用 git show|grep <tag>）
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2/rc.3 全 tag（rc.3=master tip，1f81c047fc；0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
@@ -289,6 +290,29 @@ lines:
       marked: VERIFIED
     note: "⚠️ 零断裂仅在 seam/tool-name 形状层；packages/web/web/src/index.ts 在 rc.1→rc.2 把 ctx.web 的 searchProvider/fetchProvider 钉选从构造期快照的 `readonly string`（private searchProviderId/fetchProviderId）改为 `Volatile<string|undefined>`（`z.string().volatile()`，调用点 `config.*.get()` 实时读）。依赖内存赋值/构造注入接管 search/fetch provider 的插件会静默失效——需改用 settings.mutate 持久钉选（VERIFIED: git diff dsh-v0.2.1-rc.1 dsh-v0.2.1-rc.2 -- packages/web/web/src/index.ts）"
 
+  - id: dsh-0.2.1-rc.3
+    generation: 3
+    inherits_from: dsh-0.2.1-rc.2
+    settings_registration_api:
+      value: "与 rc.2 配对探针逐列一致（cf=78/vol=1/gate=10，2026-10-24 同命令口径）；settings src 仅版本行，闸门两文件零 diff"
+      marked: VERIFIED
+      anchors: ["probe_matrix rows dsh-v0.2.1-rc.3", "source-analysis/v0.2.1-rc.3/diff-vs-0.2.1-rc.2.md §5"]
+    client_card_seat:
+      value: "**slot +3**（`sidebar.panellist.actions` / `conversation.session.header.views.actions` / `sidebar.right.tab.guide.actions`，More 菜单行，0 删 0 改名）；新包 client/ui-entry-customization：三域条目用户可钉选/隐藏/收 More——插件入口可见性让渡用户，顺序不再等于注册顺序"
+      marked: VERIFIED
+      anchors: ["source-analysis/v0.2.1-rc.3/", "slot-catalog.ts@dsh-v0.2.1-rc.3 diff"]
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "engines.dsh 时代延续（edsh=21 与 rc.2 同）；runtime 字符串 `0.2.1-rc.3`，同三元组——caret `^0.2.1-alpha.1` 免动；**枚举式清单必须加 rc.3 行否则拒载**"
+      marked: VERIFIED
+      anchors: ["VD-020-021-01"]
+    key_package_names:
+      value: "1 新包 client/ui-entry-customization；空白复用落 ui-workspace/src/client/navigation.ts（createInWorkspace）；llm-deepseek 新 listing-config.ts（modelsTimeoutMs/modelsMaxAgeMs 两 additive volatile 键），llm-deepseek-api-key 改跟随官方 /models listing"
+      marked: VERIFIED
+    note: "⚠️ 本段唯一官方升级指南 `docs/upgrade-guide/v0.2.1-rc.2/new-session-blank-reuse`：startSession/openWorkspace/connectWorkspace **签名不变语义变**（每次新建→按 preset 复用首个 unstarted/unarchived 空白；复用空白保留创建时 preset 组成）——依赖调用即全新 Agent 的集成需传 { agentPreset } 排他；目录名按迁移源版本命名，非 rc.3 目录专属"
+
   - id: dsh-future
     generation: unknown
     placeholder: true
@@ -340,6 +364,8 @@ probe_matrix:
     - { tag: dsh-v0.2.1-rc.1,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
     # rc.2 行：以下全部列与 rc.1 逐项全等（同命令同口径两 tag 实测相等，含 edsh/loc 收窄口径；2026-10-17 核）
     - { tag: dsh-v0.2.1-rc.2,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
+    # rc.3 行：2026-10-24 同命令配对探针 packages|vendor 复核，全部列与 rc.2 一致；唯一文件数差 snap+1（新增测试 llm-deepseek/tests/official-route-turn.spec.ts 提及 snapshotEvents，#6944 伴生，非契约面）
+    - { tag: dsh-v0.2.1-rc.3,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
   directory_probe:
     packages_client: { dsh-v0.1.0-rc.8: runtime, dsh-v0.1.2-rc.1: store, dsh-v0.1.7-rc.1: store, dsh-v0.2.0-rc.2: store }
     settings_namespace_export: { dsh-v0.1.0-rc.8: 34, dsh-v0.1.5-rc.3: 2, note: "0.1.5 的 2 处为无关局部命名（api/settings-controller/src/index.ts:33,:266 与 ui-settings-models/tests/onboarding-dialog.client.spec.tsx:70,:119,:248），具名导出已消失" }

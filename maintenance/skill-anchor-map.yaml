@@ -2,13 +2,13 @@
 # 结构: claim_id → source(原文档§位置) → evidence(file:line@宿主版本 | 复现命令) → status
 # status: VERIFIED(源码命中) / FARM(farm 实测,静态源码不可复核) / PENDING(待核) / CONFLICT-ADJUDICATED(已裁决) / UNVERIFIED(保留不收录正文)
 # 复核纪律: 宿主每升 rc 后逐条重跑 evidence;未命中→对应 skill 段落加「⚠ 待重新核实 <date>」
-# 基准: MAIN=deepseek-harness(0.2.0-rc.2, 含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2 全 tag，0.2.1 线探针直接 git show/grep <tag>) / AUX=.harness-017rc2-wt(0.1.7-rc.2) / OLD=dsh-repo(0.1.5-rc.2)
+# 基准: MAIN=deepseek-harness(0.2.0-rc.2, 含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2/rc.3 全 tag，0.2.1 线探针直接 git show/grep <tag>；rc.3=master tip 2026-10-24 补拉) / AUX=.harness-017rc2-wt(0.1.7-rc.2) / OLD=dsh-repo(0.1.5-rc.2)
 # 建档: 2026-10-11 ｜ 0.2.1 线追加: 2026-10-17
 
 meta:
   # <ws> = 本知识库所在工作区/仓库根目录（可移植路径占位，不保留任何机器绝对地址）
   baselines:
-    main: { path: "<ws>/deepseek-harness", version: 0.2.0-rc.2, git: true, role: 含 0.2.1 线全 tag（a.1..rc.1），符号级/闸门探针用 git show|grep <tag> 即得 }
+    main: { path: "<ws>/deepseek-harness", version: 0.2.0-rc.2, git: true, role: 含 0.2.1 线全 tag（a.1..rc.3，rc.3=master tip），符号级/闸门探针用 git show|grep <tag> 即得 }
     aux:  { path: "<ws>/.harness-017rc2-wt", version: 0.1.7-rc.2, git: true }
     old:  { path: "<ws>/dsh-repo", version: 0.1.5-rc.2, git: true }
     snapshot-study-docs: { path: "<ws>/dsh-study-docs/deepseek-harness", version: 0.1.0-rc.5, git: false, role: 引用坐标不作判据 }
