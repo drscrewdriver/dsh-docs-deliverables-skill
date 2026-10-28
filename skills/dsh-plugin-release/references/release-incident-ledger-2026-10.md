@@ -111,6 +111,13 @@
 
 ## B. 发版流水线类
 
+### A8. ⚠️ Native DLL 同进程冲突（prime-memory #11：sharp/libvips 撞名致宿主崩溃）
+- **现象**：用户在运行中切换本地嵌入模型（bge-small → bge-m3）时宿主崩溃；以及宿主图片处理功能（截图/发图）静默损坏。两版宿主（0.2.0-rc.2 / 0.2.1-rc.2）均复现。
+- **根因**：插件 runtime install 装出的 `@huggingface/transformers@4.2.0` 在 CJS 入口顶层硬 `require("sharp")`，解析到 `runtime/node_modules/sharp@0.34.5`（含 `libvips-42.dll 8.17.3`）；宿主 Electron 已有 `sharp@0.35.5`（含 `libvips-42.dll 8.18.7`）。Windows `LoadLibrary` 按文件名去重，同进程内后加载者拿到先加载者的实例 → ABI 不匹配。 `worker_threads` 共享地址空间，无法隔离。
+- **修复**：子进程隔离——将 `embedding-worker.cjs`（worker_threads）改为 `embedding-child.cjs`（child_process.fork）。独立进程 = 独立 DLL 命名空间，版本不同也不再冲突。计划已储备（见 `.agents/plans/prime-memory-subprocess-isolation/`）。
+- **预防**：门禁 G7（native DLL collision check）已入 gate-checklist；凡插件有 runtime install 且引入 native binary 时，发版前必须比对宿主同名文件清单，交集非空则 BLOCK。
+- **可复用判据**：排查这类问题时，不要拿「npm install 装出的同版本号包」与宿主自带的同名包比字节——Electron 宿主内的 native 通常是重编译的，同版本号不同字节。
+
 ### B1. ⚠️ prerelease 挂 latest 地雷
 - **现象**：perm-gate 曾带 `publishConfig.tag=latest` + prerelease 版本——裸 publish 会把 beta 推上 latest。
 - **修复**：publishConfig 改线 tag（compat）；verify V4 闸（prerelease 时 tag≠latest）。

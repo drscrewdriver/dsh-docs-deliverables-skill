@@ -51,10 +51,11 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 - ⛔ 单测全绿宣布交付 → 四层 typecheck→test→build→**dist 冒烟**（#19）；⛔ 门禁语义只写文档 → 写进代码注释（#20）。
 - ⛔ 面板挂载即干重活/落盘缓存不露生成时间（#7-9）；⛔ `settings.plugin.item` 以为有外壳——只分发不给壳（#10）。
 - ⛔ stale-build：配 `prepublishOnly` 不等于 `npm pack` 会构建（只触发 `prepack`）——三层防线见 peer-adapt VD-012-015-05。
+- ⛔ runtime 引入的 native binary（dll/.node/.so）与宿主已加载同名文件同进程共存——Windows LoadLibrary 按文件名去重、worker_threads 不隔离，ABI 不匹配崩溃或静默损坏（实案 prime-memory #11 sharp/libvips）→ 子进程隔离，判据与清单比对配方见 `references/native-module-isolation.md`（发版闸 G7）。
 
 ## 参考分片
 
-`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md` · `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
+`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md` · `native-module-isolation.md`（native 模块子进程隔离模式，起源 prime-memory #11）· `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
 
 ## 边界（不重述）
 

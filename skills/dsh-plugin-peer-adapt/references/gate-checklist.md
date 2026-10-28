@@ -54,6 +54,7 @@
 | G4 | peer 上界 `<0.2.0-0` / caret 写法**漏 rc 线**；分包窄枚举致老线整体拒载（tidy-display 15/15 绿实证） | 逐线装载试装 + 闸门日志；语义依据 `plugin-compatibility.ts:77`（`includePrerelease:true`） | `dsh plugin list` / 六线 farm 逐格 `farm add` | 每目标 runtime 都实际装载通过 | **runtime阻断**（唯一跨线开关） |
 | G5 | 默认 registry 是 **npmmirror**（`~/.npmrc`）→ publish/view 不钉源会得出「版本不存在」的假象（guard 4.1.x 案） | 发布/查询命令检查是否带 `--registry` | `npm view <pkg> dist-tags --json --registry https://registry.npmjs.org` | 一律钉 npmjs；publishConfig 也写 registry | 高危（发版纪律） |
 | G6 | **grep 模板打错靶**：单腿 grep（只搜服务名或只搜包名）会产出错误的「零代码证据」。零代码证据必须**两腿**：① type-import 宿主包 ② `ctx.get` 服务面 | 双判据 union：`rg "from '@deepseek-ai/dsh-…'"` ∧ `rg "ctx\.get\(['\"]<service>['\"]\)"` | 两腿各跑一遍再下结论 | 两腿皆 0 才可宣称「该仓无依赖」 | 高危（验证有效性） |
+| G7 | ⚠️ **Native DLL 冲突**：插件 runtime / 间接依赖引入的 native binary（.dll/.node/.so/.dylib）文件名与宿主已加载的同名 → 同进程 LoadLibrary 去重 → ABI 不匹配崩溃或功能静默损坏。worker_threads 不隔离（共享地址空间），仅 child_process 隔离 | ①枚举 runtime/自身 node_modules 中 native basename；②比对宿主 `node_modules/@img/sharp-*` 等已知清单；③交集非空时确认是否走子进程 | `find <runtime>/node_modules \( -name '*.dll' -o -name '*.node' \) | xargs -I{} basename {} | sort` 与宿主清单 `comm -12` | 交集 = 0（或冲突项已有子进程隔离证据） | **runtime阻断**（崩溃，非静默） |
 
 ## 4. T 系列 —— 台账 ⚠️ 项与环境/断言纪律（11 号 + migration §8 + 08 号）
 
@@ -93,8 +94,8 @@
 
 | 分级 | 条数 | ID |
 |---|---|---|
-| runtime阻断 | 8 | D1、D5、D8、D11、V3、T9、G4（peer 段）、D4-peer 侧 |
+| runtime阻断 | 9 | D1、D5、D8、D11、V3、T9、G4（peer 段）、D4-peer 侧、**G7** |
 | 高危 | 26 | D2、D3、D6、D7、D10、V2、V4、V5、V6a、V6b、G1、G2、G3、G5、G6、T1-T8、T10-T15、T17、T18 |
 | 元数据卫生 | 4 | D4-engines、D9、V1、T16 |
 
-> 注：条目总数 = 11(D) + 7(V2 拆 a/b 记 1 行计 7) + 6(G) + 18(T) = 42 行；分级列中 D4 因两侧拆分重复计数，故 8+26+4=38 对应 36 行 + 2 个拆分侧。
+> 注：条目总数 = 11(D) + 7(V2 拆 a/b 记 1 行计 7) + 7(G) + 18(T) = 43 行；分级列中 D4 因两侧拆分重复计数，故 9+26+4=39 对应 37 行 + 2 个拆分侧。
