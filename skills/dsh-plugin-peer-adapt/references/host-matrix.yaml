@@ -9,12 +9,13 @@
 #    在实测中显示可用；凡 marked: FARM 的格，结论只能证「测过的那一格当时可用」，不得外推为该线能力。
 # 六线定义遵守定谳事实 6：0.1.0-rc.8 / 0.1.1-rc.2 / 0.1.2-rc.1 / 0.1.5-rc.3 / 0.1.7-rc.2 / 0.2.0-rc.2。
 # 2026-10-17 增补 0.2.1 线两档（alpha.3 = 纯 peer 时代尾声；rc.1 = engines.dsh 时代现职尾版）与探针行。**0.2.1 线于本版后追加（a.3/a.5/rc.1 探针已入）**。
-# 2026-10-24 追加 dsh-0.2.1-rc.3（导航条目自定义车：slot +3；New Session 空白复用带官方指南 1 篇；DeepSeek 跟官方 /models）卡片与探针行；现尾版=rc.3。
+# 2026-10-24 追加 dsh-0.2.1-rc.3（导航条目自定义车：slot +3；New Session 空白复用带官方指南 1 篇；DeepSeek 跟官方 /models）卡片与探针行。
+# 2026-10-28 追加 dsh-0.2.1-rc.4（纯修复车：页签 tooltip 估算溢出才挂 + More 文案静态化（locale 键 session.moreViewsCurrent 删）；ACP stdout 保留×2；契约面零 diff）卡片与探针行；现尾版=rc.4（**≠ master tip**，origin/master 现 f3803c9697）。
 
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2/rc.3 全 tag（rc.3=master tip，1f81c047fc；0.2.1 线探针用 git show|grep <tag>）
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1/rc.2/rc.3/rc.4 全 tag（rc.4=最新 tag，504a01a957，≠ master tip f3803c9697；0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
@@ -313,6 +314,30 @@ lines:
       marked: VERIFIED
     note: "⚠️ 本段唯一官方升级指南 `docs/upgrade-guide/v0.2.1-rc.2/new-session-blank-reuse`：startSession/openWorkspace/connectWorkspace **签名不变语义变**（每次新建→按 preset 复用首个 unstarted/unarchived 空白；复用空白保留创建时 preset 组成）——依赖调用即全新 Agent 的集成需传 { agentPreset } 排他；目录名按迁移源版本命名，非 rc.3 目录专属"
 
+  - id: dsh-0.2.1-rc.4
+    generation: 3
+    inherits_from: dsh-0.2.1-rc.3
+    settings_registration_api:
+      value: "与 rc.3 配对探针逐列一致（2026-10-28 同会话双 tag 全量口径 packages|vendor|apps：cf=78/vol=1/gate=10/inst=3/dpc=2/card=1/rowcfg=11/detail=9/allowver=9/snap=262 全等；edsh=27/loc=12 为含 apps 全量口径，收窄口径同 rc.3 存量值 21/6）；闸门两文件/settings src/vendor/docs/ 整目录零 diff"
+      marked: VERIFIED
+      anchors: ["probe_matrix rows dsh-v0.2.1-rc.4", "source-analysis/v0.2.1-rc.4/diff-vs-0.2.1-rc.3.md §4"]
+    client_card_seat:
+      value: "**slot 零增删改**（slot-catalog.ts 零 diff）；但 `ui-conversation` 头渲染行为变：View 页签全名 tooltip 仅在估算溢出（宽字形13px/窄7px vs 88px 单元）时挂；More 按钮 label 恒为 `session.moreViews`，**内部 locale 键 `session.moreViewsCurrent` 删除**（zh/en）——以这些文案/tooltip 为锚的 DOM 探针假阴性"
+      marked: VERIFIED
+      anchors: ["source-analysis/v0.2.1-rc.4/", "git diff dsh-v0.2.1-rc.3 dsh-v0.2.1-rc.4 -- packages/client/ui-conversation/src"]
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "engines.dsh 时代延续（闸门文件零 diff）；runtime 字符串 `0.2.1-rc.4`，同三元组——caret `^0.2.1-alpha.1` 免动；**枚举式清单必须加 rc.4 行否则拒载**"
+      marked: VERIFIED
+      anchors: ["VD-020-021-01"]
+    key_package_names:
+      value: "0 包增删改名；实质改动 20 文件三主题：ui-conversation tooltip 精化（#7183/#7342）；llm-deepseek-account 目录诊断 console.info→console.error（stdout→stderr，#7179）；mcp-client 对未宣告 resources 服务器 resources/list|templates/list **短路空页不触 SDK**（#7168）；新 e2e apps/cli/tests/profiles/acp/tests/stdout.expected.e2e.ts 固化 ACP stdout 仅协议消息"
+      marked: VERIFIED
+      anchors: ["source-analysis/v0.2.1-rc.4/CHANGELOG.md"]
+    note: "纯修复车，指南 0 篇；消费侧 API/形状零变化，变化在运行态：①探针锚（页签 tooltip 出现条件、More 文案）②日志去向（stdout→stderr）③MCP 未宣告服务器的'触达性'断言。rc.3 及以前的全部自查项原样适用"
+
   - id: dsh-future
     generation: unknown
     placeholder: true
@@ -366,6 +391,8 @@ probe_matrix:
     - { tag: dsh-v0.2.1-rc.2,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 261, edsh: 21 }
     # rc.3 行：2026-10-24 同命令配对探针 packages|vendor 复核，全部列与 rc.2 一致；唯一文件数差 snap+1（新增测试 llm-deepseek/tests/official-route-turn.spec.ts 提及 snapshotEvents，#6944 伴生，非契约面）
     - { tag: dsh-v0.2.1-rc.3,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
+    # rc.4 行：2026-10-28 同会话配对探针（双 tag 同命令 packages|vendor|apps 全量口径）14 列逐项全等于 rc.3（全量口径 edsh=27/loc=12，两者同值；表内沿用 rc.3 存量收窄口径 21/6）；闸门/槽/docs 零 diff，契约面无任何探针信号
+    - { tag: dsh-v0.2.1-rc.4,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
   directory_probe:
     packages_client: { dsh-v0.1.0-rc.8: runtime, dsh-v0.1.2-rc.1: store, dsh-v0.1.7-rc.1: store, dsh-v0.2.0-rc.2: store }
     settings_namespace_export: { dsh-v0.1.0-rc.8: 34, dsh-v0.1.5-rc.3: 2, note: "0.1.5 的 2 处为无关局部命名（api/settings-controller/src/index.ts:33,:266 与 ui-settings-models/tests/onboarding-dialog.client.spec.tsx:70,:119,:248），具名导出已消失" }
