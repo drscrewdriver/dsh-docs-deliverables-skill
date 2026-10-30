@@ -367,7 +367,7 @@ lines:
   - id: dsh-future
     generation: unknown
     placeholder: true
-    status_note: "0.2.2-alpha.2（f3803c9697，2026-10-27，npm `alpha` 标）已发但断裂面未逐主题析——首批探针：闸门零 diff/缝 +50/≥26 新包，建卡前先跑全量缝隙分析；**同时 0.2.1 线尾版已推进至 rc.5（b830ec950f，2026-10-29，PR #7572，reasoning body slot 契约换代车）**——两条线并行分叉（master tip 仍为 a.2）"
+    status_note: "0.2.2-alpha.2（f3803c9697，2026-10-27，npm `alpha` 标）已发但断裂面未逐主题析——首批探针：闸门零 diff/缝 +50/≥26 新包，建卡前先跑全量缝隙分析；**同时 0.2.1 线尾版已推进至 rc.5（b830ec950f，2026-10-29，PR #7572，reasoning body slot 契约换代车）**——两条线并行分叉（master tip 仍为 a.2）。自有插件侧 rc.5 适配已完成 23/23 仓发布（2026-10-31，media-lens 挂账等 0.3.0 收口，台账 mine-dsh-plugins/.agents/plans/dsh-rc5-adapt-bulk/）"
     settings_registration_api:
       value: "TBD —— 唯一合法判据是重新跑探针：installSection / settingsScope / configForms / volatile / evaluatePluginCompatibility 五面文件数"
       marked: UNVERIFIED
