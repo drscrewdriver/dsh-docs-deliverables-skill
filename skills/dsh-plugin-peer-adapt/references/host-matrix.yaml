@@ -12,11 +12,12 @@
 # 2026-10-24 追加 dsh-0.2.1-rc.3（导航条目自定义车：slot +3；New Session 空白复用带官方指南 1 篇；DeepSeek 跟官方 /models）卡片与探针行。
 # 2026-10-28 追加 dsh-0.2.1-rc.4（纯修复车：页签 tooltip 估算溢出才挂 + More 文案静态化（locale 键 session.moreViewsCurrent 删）；ACP stdout 保留×2；契约面零 diff）卡片与探针行。
 # 2026-10-28 二轮动态：dsh-v0.2.2-alpha.2（`f3803c9697`，= master tip，npm 挂 `alpha` 标）已发——0.2.2 线首 tag，**alpha.1 在 git/npm 均不存在**；换代段（树级 7242 files；commit 数浅克隆下不可考），首批探针：闸门两文件零 diff、SESSION_FORMAT_VERSION 仍 4、capability-seams +50（forge/liveshare/action-cards 等新缝族）、≥26 新包、指南补挂 +39 篇；**断裂面未逐主题析，未建卡不入矩阵——跟进 0.2.2 线前勿盲补枚举**（详见 source-analysis/v0.2.2-alpha.2/README.md）；现尾版=rc.4（0.2.1 线）。
+# 2026-10-31 追加 dsh-0.2.1-rc.5（契约精化车，PR #7572，2026-10-29）卡片与探针行：reasoning body slot 契约换代——**新增必填 `rawText: string` + `text` 语义反转**（原始输出→Chat 处理后展示文本），`ReasoningContentInput` 不再 extends `ReasoningBodyOwnerProps`；闸门/capability-seams/slot key 集合/vendor/settings 核心/持久化 零 diff；官方指南 1 篇（`v0.2.1-rc.4/reasoning-body-props/`）；** 0.2.1 线尾版从 rc.4 推进至 rc.5**（master tip 仍为 0.2.2-alpha.2，与 rc.5 并行分叉）。
 
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1..rc.4 全 tag + dsh-v0.2.2-alpha.2（= master tip f3803c9697；0.2.2 线无 alpha.1；0.2.1 线探针用 git show|grep <tag>）
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1..rc.5 全 tag + dsh-v0.2.2-alpha.2（= master tip f3803c9697；0.2.2 线无 alpha.1；0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
@@ -339,10 +340,34 @@ lines:
       anchors: ["source-analysis/v0.2.1-rc.4/CHANGELOG.md"]
     note: "纯修复车，指南 0 篇；消费侧 API/形状零变化，变化在运行态：①探针锚（页签 tooltip 出现条件、More 文案）②日志去向（stdout→stderr）③MCP 未宣告服务器的'触达性'断言。rc.3 及以前的全部自查项原样适用"
 
+  - id: dsh-0.2.1-rc.5
+    generation: 3
+    inherits_from: dsh-0.2.1-rc.4
+    settings_registration_api:
+      value: "与 rc.4 配对探针逐列全等（2026-10-31 实测 packages|vendor|apps 口径：cf=78/gate=10/snap=262/edsh=27〔收窄 21〕/loc=12〔收窄 6〕；余列因闸门/settings src/vendor/docs 零 diff 未直接重跑——预期全等）；闸门两文件/settings src/vendor 零 diff；新非包文件 `packages/client/ui-chat/src/client/reasoning-text.ts` 不影响列"
+      marked: VERIFIED
+      anchors: ["probe_matrix rows dsh-v0.2.1-rc.5", "source-analysis/v0.2.1-rc.5/diff-vs-0.2.1-rc.4.md §3"]
+    client_card_seat:
+      value: "**slot key 集合零增删**（slot-catalog.ts `key:` 行零增删，仅 `conversation.chat.reasoning.body` 的 doc/summary/ownerProps 三处描述换 + 其他 slot `source:` 行号位移 +6）；**本段面向作者契约 breaking**：slot `conversation.chat.reasoning.body` 的 `ReasoningBodyOwnerProps` 新增必填 `rawText: string`，`text` 字段语义反转（原始输出→Chat 处理后展示文本，走新助手 `reasoningText()` 剥 `**` 等）；`ReasoningContentInput` 不再 `extends ReasoningBodyOwnerProps`（字段独立化为 `{ text, running, labels? }`，Content Factory 签名不变）；官方 cot-translation 仅改 JSDoc（代码 `props.text` 未动，展示文本翻译方兼容）"
+      marked: VERIFIED
+      anchors: ["source-analysis/v0.2.1-rc.5/", "git diff dsh-v0.2.1-rc.4 dsh-v0.2.1-rc.5 -- packages/client/ui-chat/src/client/contract/slots.ts"]
+    host_settings_page:
+      value: "有；未断代"
+      marked: VERIFIED
+    gate_peer_range_semantics:
+      value: "engines.dsh 时代延续（闸门文件零 diff）；runtime 字符串 `0.2.1-rc.5`，同三元组——caret `^0.2.1-alpha.1` 免动；**枚举式清单必须加 rc.5 行否则拒载**"
+      marked: VERIFIED
+      anchors: ["VD-020-021-01", "VD-020-021-09"]
+    key_package_names:
+      value: "0 包增删改名；实质改动 19 文件（含 3 语 guide + 3 语 ui-chat README + 13 源/测）——**单一主题**：ui-chat reasoning body slot 换代（PR #7572）；新增内部模块 `packages/client/ui-chat/src/client/reasoning-text.ts`；伴生 client-ui-cot-translation JSDoc + cordis-client-runner slot-catalog 描述同步 + apps/web e2e + ui-chat 四份测试"
+      marked: VERIFIED
+      anchors: ["source-analysis/v0.2.1-rc.5/CHANGELOG.md"]
+    note: "契约精化车，指南 1 篇（目录 `v0.2.1-rc.4/reasoning-body-props/`，按迁移源命名——同 rc.3 「New Session」惯例，非目标版本目录）。命中才动：不注入 `conversation.chat.reasoning.body` 的插件代码零改动；注入且将 `text` 当原始输出用（正则/字数/复制原文/二次翻译源）必须切 `rawText`；曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` 做泛型约束 → 拆开显式声明；严格 props schema（zod strict 类）将 `rawText` 加入白名单。闸门/seams/持久化零变化，rc.1..rc.4 全部自查项原样适用；commit 数浅克隆 graft 下不可考（同 0.2.2-alpha.2 处理）"
+
   - id: dsh-future
     generation: unknown
     placeholder: true
-    status_note: "0.2.2-alpha.2（f3803c9697，2026-10-28，npm `alpha` 标）已发但断裂面未逐主题析；首批探针：闸门零 diff/缝 +50/≥26 新包——建卡前先跑全量缝隙分析"
+    status_note: "0.2.2-alpha.2（f3803c9697，2026-10-27，npm `alpha` 标）已发但断裂面未逐主题析——首批探针：闸门零 diff/缝 +50/≥26 新包，建卡前先跑全量缝隙分析；**同时 0.2.1 线尾版已推进至 rc.5（b830ec950f，2026-10-29，PR #7572，reasoning body slot 契约换代车）**——两条线并行分叉（master tip 仍为 a.2）"
     settings_registration_api:
       value: "TBD —— 唯一合法判据是重新跑探针：installSection / settingsScope / configForms / volatile / evaluatePluginCompatibility 五面文件数"
       marked: UNVERIFIED
@@ -395,6 +420,8 @@ probe_matrix:
     - { tag: dsh-v0.2.1-rc.3,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
     # rc.4 行：2026-10-28 同会话配对探针（双 tag 同命令 packages|vendor|apps 全量口径）14 列逐项全等于 rc.3（全量口径 edsh=27/loc=12，两者同值；表内沿用 rc.3 存量收窄口径 21/6）；闸门/槽/docs 零 diff，契约面无任何探针信号
     - { tag: dsh-v0.2.1-rc.4,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
+    # rc.5 行：2026-10-31 实测（packages|vendor|apps 口径）cf=78/gate=10/snap=262/edsh=27〔收窄 21〕/loc=12〔收窄 6〕与 rc.4 逐项全等；余列因闸门/settings src/vendor/docs/capability-seams 零 diff 预期全等——未直接重跑（浅克隆 graft，commit 数不可考）；本段契约层面有作者面向 breaking（reasoning body slot）但不体现在探针列，属 API 形状层而非探针可判定的存在性层
+    - { tag: dsh-v0.2.1-rc.5,   iss: 0,  inst: 3, scope: 0, cf: 78, vol: 1, gate: 10, dpc: 2, card: 1, rowcfg: 11, detail: 9, allowver: 9, loc: 6, snap: 262, edsh: 21 }
   directory_probe:
     packages_client: { dsh-v0.1.0-rc.8: runtime, dsh-v0.1.2-rc.1: store, dsh-v0.1.7-rc.1: store, dsh-v0.2.0-rc.2: store }
     settings_namespace_export: { dsh-v0.1.0-rc.8: 34, dsh-v0.1.5-rc.3: 2, note: "0.1.5 的 2 处为无关局部命名（api/settings-controller/src/index.ts:33,:266 与 ui-settings-models/tests/onboarding-dialog.client.spec.tsx:70,:119,:248），具名导出已消失" }

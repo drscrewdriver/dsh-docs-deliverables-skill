@@ -579,6 +579,18 @@
 | 证据 | VERIFIED：tag 探针（`git diff rc.1 rc.2` 逐面）+ slot-catalog occupants diff + capability-seams provider 行 |
 | 先例仓 | 自挂模型标签/徽章类插件（tidy-display 族） |
 
+### VD-020-021-09 · 0.2.1-rc.5 reasoning body slot 双轨文本换代（症状：自定义推理 renderer 字数不对/正则不命中/复制得到处理后文本/原文翻译目标错）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | **`conversation.chat.reasoning.body` slot 的 `ReasoningBodyOwnerProps` 契约换代**（tag `b830ec950f`，PR #7572）：①新增 **必填** `rawText: string`（模型原始输出）；② **`text` 字段语义反转**——从"Complete or streaming reasoning text"（旧 raw）变"Reasoning text prepared for display"（Chat 预处理后，走新内部助手 `reasoningText()` 剥 `**` 等）；③ `ReasoningContentInput` **不再 `extends ReasoningBodyOwnerProps`**——字段独立化为 `{ text, running, labels? }`（`conversation.chat.reasoning.content` Factory 签名不变）；官方包 `client-ui-cot-translation` 作范例仅改 JSDoc，代码 `props.text` 消费点不动（展示文本翻译方兼容） |
+| 断裂面 | API 形状 + 语义双重变化——旧代码 只要读 `text` 且不引用 `rawText` 就 **类型仍通，行为静默漂移**（不报编译错）；曾对 `ReasoningContentInput extends ReasoningBodyOwnerProps` 做泛型约束的 → **类型不通**；严格 props schema（zod strict 类）将因新字段 **reject**。闸门/capability-seams/slot key 集合/settings 核心/vendor/持久化 **零 diff**；升级指南 1 篇（目录 `docs/upgrade-guide/v0.2.1-rc.4/reasoning-body-props/`——按迁移源命名而非目标版本目录） |
+| 运行时症状 | 注入 body slot 的插件拿到 `text` 不再是模型原始输出（如字数少了、`**` 已剥、正则匹配 `<thinking>` 不命中）；默认官方 `DefaultReasoningBody` 将预处理后的 `text` 传给 Content Factory，行为与旧版一致 |
+| 检测点代码 | `grep -R "conversation\.chat\.reasoning\.body" your-plugin/src`——命中即需语义自查；`grep -R "ReasoningContentInput\|ReasoningBodyOwnerProps"` 命中且存在 `extends` 约束 → 需拆开声明 |
+| 兜底处方 | ①将 `text` 用于展示（直接渲染 Markdown/DOM） → 零改动；②将 `text` 当原始输出（正则/字数/复制/二次翻译源） → **切 `rawText`**；③曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` → 拆开显式声明 `{ text, running, labels? }`；④严格 props schema → 将 `rawText` 加入白名单；⑤ peer/engines 写法：同三元组，caret `^0.2.1-alpha.1` 天然命中；枚举式清单必须加 `0.2.1-rc.5` 行否则拒载 |
+| 证据 | VERIFIED：`git diff dsh-v0.2.1-rc.4 dsh-v0.2.1-rc.5 -- packages/client/ui-chat/src/client/contract/slots.ts packages/extensions/cordis-client-runner/src/client/slot-catalog.ts packages/experimental/client-ui-cot-translation/src/client/TranslationBody.tsx` + `git show dsh-v0.2.1-rc.5:packages/client/ui-chat/src/client/reasoning-text.ts` + source-analysis/v0.2.1-rc.5/ 四件套 |
+| 先例仓 | 自定义推理 renderer（字数统计、原文复制、二次处理、自定义高亮正则、非官方翻译包装） |
+
 ---
 
 ## 附：症状词 → VD-ID 路由候选表（供 SKILL.md 首屏，症状词做首词）
@@ -624,6 +636,7 @@
 | 模型标签被官方 1017 徽章遮蔽 / rc.2 装载差异 | VD-020-021-08 | — |
 | run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留 / webRuntime 失效 | VD-020-021-06 | — |
 | 升级宿主后插件不更新 / 官方插件市场 | VD-020-021-07 | VD-020-021-01 |
+| 推理区字数不对 / `<thinking>` 正则不命中 / 复制得到处理后文本 / 自定义 renderer 原文翻译目标错 | VD-020-021-09 | — |
 
 ---
 
@@ -637,8 +650,8 @@
 | §4 0.1.5→0.1.6 | 6 | 5 | 0 | 1 | 0 |
 | §5 0.1.6→0.1.7 | 10 | 9 | 0 | 1 | 0 |
 | §6 0.1.7→0.2.0 | 8 | 5 | 1 | 2 | 0 |
-| §7 0.2.0→0.2.1（含线内断代） | 8 | 8 | 0 | 0 | 0 |
-| **合计** | **45** | **39** | **2** | **4** | **0** |
+| §7 0.2.0→0.2.1（含线内断代） | 9 | 9 | 0 | 0 | 0 |
+| **合计** | **46** | **40** | **2** | **4** | **0** |
 
 > 说明：VD-016-017-07（bind 面 `update`→`mutate`/+`dispose`）已并入 VD-016-017-03 的迁移公式条目；VD-011-012-02b 为补号卡。
 > 等级取卡内**最高可用级**（同卡内若部分 PENDING 已在字段栏注明，不因局部待证降级）。
