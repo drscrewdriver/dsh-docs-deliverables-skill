@@ -579,15 +579,15 @@
 | 证据 | VERIFIED：tag 探针（`git diff rc.1 rc.2` 逐面）+ slot-catalog occupants diff + capability-seams provider 行 |
 | 先例仓 | 自挂模型标签/徽章类插件（tidy-display 族） |
 
-### VD-020-021-09 · 0.2.1-rc.5 reasoning body slot 双轨文本换代（症状：自定义推理 renderer 字数不对/正则不命中/复制得到处理后文本/原文翻译目标错）
+### VD-020-021-09 · 0.2.1-rc.5 reasoning body slot 双轨文本换代（症状：签名块不显示/签名审计不命中/复制得到去签名文本/签名计入字数偏少）
 
 | 字段 | 内容 |
 |---|---|
-| 变化点 | **`conversation.chat.reasoning.body` slot 的 `ReasoningBodyOwnerProps` 契约换代**（tag `b830ec950f`，PR #7572）：①新增 **必填** `rawText: string`（模型原始输出）；② **`text` 字段语义反转**——从"Complete or streaming reasoning text"（旧 raw）变"Reasoning text prepared for display"（Chat 预处理后，走新内部助手 `reasoningText()` 剥 `**` 等）；③ `ReasoningContentInput` **不再 `extends ReasoningBodyOwnerProps`**——字段独立化为 `{ text, running, labels? }`（`conversation.chat.reasoning.content` Factory 签名不变）；官方包 `client-ui-cot-translation` 作范例仅改 JSDoc，代码 `props.text` 消费点不动（展示文本翻译方兼容） |
+| 变化点 | **`conversation.chat.reasoning.body` slot 的 `ReasoningBodyOwnerProps` 契约换代**（tag `b830ec950f`，PR #7572）：①新增 **必填** `rawText: string`（模型原始输出）；② **`text` 字段目标语义反转**——从"Complete or streaming reasoning text"（旧 raw）变"Reasoning text prepared for display"（实读助手 `reasoningText()`（2026-10-31 重核）仅处理 `<signature>` 签名块：闭合剥体返正文、未闭合/前缀流式态置空（触发 `hidden` 整块不渲染）、非 `<` 前缀原样透传——**多数模型下 text===rawText 无值差**；`**` 仅折叠摘要层清洗不影响 body）；③ `ReasoningContentInput` **不再 `extends ReasoningBodyOwnerProps`**——字段独立化为 `{ text, running, labels? }`（`conversation.chat.reasoning.content` Factory 签名不变）；官方包 `client-ui-cot-translation` 作范例仅改 JSDoc，代码 `props.text` 消费点不动（展示文本翻译方兼容） |
 | 断裂面 | API 形状 + 语义双重变化——旧代码 只要读 `text` 且不引用 `rawText` 就 **类型仍通，行为静默漂移**（不报编译错）；曾对 `ReasoningContentInput extends ReasoningBodyOwnerProps` 做泛型约束的 → **类型不通**；严格 props schema（zod strict 类）将因新字段 **reject**。闸门/capability-seams/slot key 集合/settings 核心/vendor/持久化 **零 diff**；升级指南 1 篇（目录 `docs/upgrade-guide/v0.2.1-rc.4/reasoning-body-props/`——按迁移源命名而非目标版本目录） |
-| 运行时症状 | 注入 body slot 的插件拿到 `text` 不再是模型原始输出（如字数少了、`**` 已剥、正则匹配 `<thinking>` 不命中）；默认官方 `DefaultReasoningBody` 将预处理后的 `text` 传给 Content Factory，行为与旧版一致 |
+| 运行时症状 | 仅当模型输出带 `<signature>` 签名块（DeepSeek 官方 thinking 形态）时分岔：签名体在 `text` 中已被剥/整块隐（字数少计、签名审计不命中、复制缺签名）；其余模型 `text === rawText` 无症状；默认官方 `DefaultReasoningBody` 将处理后的 `text` 传给 Content Factory，行为与旧版一致 |
 | 检测点代码 | `grep -R "conversation\.chat\.reasoning\.body" your-plugin/src`——命中即需语义自查；`grep -R "ReasoningContentInput\|ReasoningBodyOwnerProps"` 命中且存在 `extends` 约束 → 需拆开声明 |
-| 兜底处方 | ①将 `text` 用于展示（直接渲染 Markdown/DOM） → 零改动；②将 `text` 当原始输出（正则/字数/复制/二次翻译源） → **切 `rawText`**；③曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` → 拆开显式声明 `{ text, running, labels? }`；④严格 props schema → 将 `rawText` 加入白名单；⑤ peer/engines 写法：同三元组，caret `^0.2.1-alpha.1` 天然命中；枚举式清单必须加 `0.2.1-rc.5` 行否则拒载 |
+| 兜底处方 | ①将 `text` 用于展示（直接渲染 Markdown/DOM） → 零改动；②需要**含签名块的原始全文**（签名审计/字数含签名/原文复制/以 raw 为源二次翻译） → **切 `rawText`**（非签名形态 text===rawText，`**`/`<thinking>` 类正则不受影响，2026-10-31 重核）；③曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` → 拆开显式声明 `{ text, running, labels? }`；④严格 props schema → 将 `rawText` 加入白名单；⑤ peer/engines 写法：同三元组，caret `^0.2.1-alpha.1` 天然命中；枚举式清单必须加 `0.2.1-rc.5` 行否则拒载 |
 | 证据 | VERIFIED：`git diff dsh-v0.2.1-rc.4 dsh-v0.2.1-rc.5 -- packages/client/ui-chat/src/client/contract/slots.ts packages/extensions/cordis-client-runner/src/client/slot-catalog.ts packages/experimental/client-ui-cot-translation/src/client/TranslationBody.tsx` + `git show dsh-v0.2.1-rc.5:packages/client/ui-chat/src/client/reasoning-text.ts` + source-analysis/v0.2.1-rc.5/ 四件套 |
 | 先例仓 | 自定义推理 renderer（字数统计、原文复制、二次处理、自定义高亮正则、非官方翻译包装） |
 
@@ -636,7 +636,7 @@
 | 模型标签被官方 1017 徽章遮蔽 / rc.2 装载差异 | VD-020-021-08 | — |
 | run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留 / webRuntime 失效 | VD-020-021-06 | — |
 | 升级宿主后插件不更新 / 官方插件市场 | VD-020-021-07 | VD-020-021-01 |
-| 推理区字数不对 / `<thinking>` 正则不命中 / 复制得到处理后文本 / 自定义 renderer 原文翻译目标错 | VD-020-021-09 | — |
+| 签名块不显示 / 签名审计不命中 / 复制得到去签名文本 / 签名计入字数偏少 | VD-020-021-09 | — |
 
 ---
 

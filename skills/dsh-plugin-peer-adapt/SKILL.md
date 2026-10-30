@@ -60,7 +60,7 @@ description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0
 | 槽注入成功但永远不渲染 / 具名符号 tsc 断 | VD-020-021-03 | ≥a.3 旧名 conversation.message.images 改名进 chat 家族；新面 hero.options/workspace.toast/plugins.tab(a.4)/input.model.label(a.5) |
 | 账号通知元数据读空 / orderId 非 UUID 断言炸 | VD-020-021-04 | ≥a.5 可选 JsonValue 需收窄；空 expiresAt=永久 |
 | 0.2.1-alpha/rc 互相打不中 | VD-020-021-05 | 同三元组预发布序 alpha<rc：^0.2.1-alpha.1 含 rc.1；>=0.2.1-rc.1 不含 alpha；rc.1 本身=纯 bump 面同 a.5 |
-| 推理区字数不对 / `<thinking>` 正则不命中 / 复制得到处理后文本 / 自定义 renderer 原文翻译目标错 | VD-020-021-09 | ≥rc.5：body slot `text` 语义反转（原始输出→Chat 处理后展示文本），新必填 `rawText` 存原始；`ReasoningContentInput` 脱钩 `ReasoningBodyOwnerProps` |
+| 签名块不显示 / 签名审计不命中 / 复制得到去签名文本 / 签名计入字数偏少 | VD-020-021-09 | ≥rc.5：body slot `text` 目标口径转"展示文本"（助手仅剥/隐 `<signature>` 签名块，非 `<` 前缀原样透传，多数模型 text===rawText）；需原始含签名全文读 `rawText`；`ReasoningContentInput` 脱钩 `ReasoningBodyOwnerProps` |
 
 完整卡与 PENDING 项 → `references/version-delta-ledger.md`（46 卡，含 §7 0.2.0→0.2.1 九卡）。未命中症状：Grep 台账文件症状列。
 

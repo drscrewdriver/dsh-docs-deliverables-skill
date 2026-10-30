@@ -348,7 +348,7 @@ lines:
       marked: VERIFIED
       anchors: ["probe_matrix rows dsh-v0.2.1-rc.5", "source-analysis/v0.2.1-rc.5/diff-vs-0.2.1-rc.4.md §3"]
     client_card_seat:
-      value: "**slot key 集合零增删**（slot-catalog.ts `key:` 行零增删，仅 `conversation.chat.reasoning.body` 的 doc/summary/ownerProps 三处描述换 + 其他 slot `source:` 行号位移 +6）；**本段面向作者契约 breaking**：slot `conversation.chat.reasoning.body` 的 `ReasoningBodyOwnerProps` 新增必填 `rawText: string`，`text` 字段语义反转（原始输出→Chat 处理后展示文本，走新助手 `reasoningText()` 剥 `**` 等）；`ReasoningContentInput` 不再 `extends ReasoningBodyOwnerProps`（字段独立化为 `{ text, running, labels? }`，Content Factory 签名不变）；官方 cot-translation 仅改 JSDoc（代码 `props.text` 未动，展示文本翻译方兼容）"
+      value: "**slot key 集合零增删**（slot-catalog.ts `key:` 行零增删，仅 `conversation.chat.reasoning.body` 的 doc/summary/ownerProps 三处描述换 + 其他 slot `source:` 行号位移 +6）；**本段面向作者契约 breaking**：slot `conversation.chat.reasoning.body` 的 `ReasoningBodyOwnerProps` 新增必填 `rawText: string`，`text` 字段语义反转（目标口径：原始输出→展示文本；实读助手 `reasoningText()`（2026-10-31 重核）仅处理 `<signature>` 签名块——剥体/置空，非 `<` 前缀原样透传，**多数模型下 text===rawText 无值差**，命中面=签名块完整内容依赖者；`**` 仅折叠摘要层清洗）；`ReasoningContentInput` 不再 `extends ReasoningBodyOwnerProps`（字段独立化为 `{ text, running, labels? }`，Content Factory 签名不变）；官方 cot-translation 仅改 JSDoc（代码 `props.text` 未动，展示文本翻译方兼容）"
       marked: VERIFIED
       anchors: ["source-analysis/v0.2.1-rc.5/", "git diff dsh-v0.2.1-rc.4 dsh-v0.2.1-rc.5 -- packages/client/ui-chat/src/client/contract/slots.ts"]
     host_settings_page:
@@ -362,7 +362,7 @@ lines:
       value: "0 包增删改名；实质改动 19 文件（含 3 语 guide + 3 语 ui-chat README + 13 源/测）——**单一主题**：ui-chat reasoning body slot 换代（PR #7572）；新增内部模块 `packages/client/ui-chat/src/client/reasoning-text.ts`；伴生 client-ui-cot-translation JSDoc + cordis-client-runner slot-catalog 描述同步 + apps/web e2e + ui-chat 四份测试"
       marked: VERIFIED
       anchors: ["source-analysis/v0.2.1-rc.5/CHANGELOG.md"]
-    note: "契约精化车，指南 1 篇（目录 `v0.2.1-rc.4/reasoning-body-props/`，按迁移源命名——同 rc.3 「New Session」惯例，非目标版本目录）。命中才动：不注入 `conversation.chat.reasoning.body` 的插件代码零改动；注入且将 `text` 当原始输出用（正则/字数/复制原文/二次翻译源）必须切 `rawText`；曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` 做泛型约束 → 拆开显式声明；严格 props schema（zod strict 类）将 `rawText` 加入白名单。闸门/seams/持久化零变化，rc.1..rc.4 全部自查项原样适用；commit 数浅克隆 graft 下不可考（同 0.2.2-alpha.2 处理）"
+    note: "契约精化车，指南 1 篇（目录 `v0.2.1-rc.4/reasoning-body-props/`，按迁移源命名——同 rc.3 「New Session」惯例，非目标版本目录）。命中才动：不注入 `conversation.chat.reasoning.body` 的插件代码零改动；注入且需**含签名块的原始全文**（签名审计/字数含签名/原文复制/二次翻译源）必须切 `rawText`（助手仅处理 `<signature>`，非签名形态 text===rawText、`**`/`<thinking>` 正则不受影响，2026-10-31 重核）；曾依赖 `ReasoningContentInput extends ReasoningBodyOwnerProps` 做泛型约束 → 拆开显式声明；严格 props schema（zod strict 类）将 `rawText` 加入白名单。闸门/seams/持久化零变化，rc.1..rc.4 全部自查项原样适用；commit 数浅克隆 graft 下不可考（同 0.2.2-alpha.2 处理）"
 
   - id: dsh-future
     generation: unknown
