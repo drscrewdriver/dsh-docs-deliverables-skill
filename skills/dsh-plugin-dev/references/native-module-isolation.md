@@ -105,9 +105,9 @@ process.on('uncaughtException', (err) => {
 |---|---|
 | 向量序列化 | fork IPC 不支持 ArrayBuffer transfer；Float32Array → `Array.from(v)` (JSON) 往返精度无损（IEEE 754 double ⊃ float32） |
 | Windows kill | `child.kill()` 只杀 cmd.exe wrapper；用 `taskkill /T /F` 杀进程树 |
-| execPath | `fork()` 默认用 `process.execPath`（Electron 自带 Node runtime），无需额外指定 |
+| execPath | `fork()` 默认用 `process.execPath`（Electron 自带 Node runtime）。但**仍应显式传入并落日志**：显式值才能归因（崩了能对齐「跑在哪种运行时」），且不依赖默认行为。宿主 PATH 里没有 `node`，禁止用裸 `node` 起子进程 → 见 [electron-host-constraints.md](./electron-host-constraints.md) B2/B3 |
 | 生命周期 | 插件 disable / 宿主 before-quit 时必须 `terminate()` 防孤儿 |
-| 崩溃策略 | 子进程退出 → 主线程转 failed 态 → 降级 FTS；不自愈（与 worker 版一致） |
+| 崩溃策略 | 子进程退出 → **先有界重启**（速率窗 + 次数上限 + 只续一次 ack），超窗才转 failed 态并降级。纯「不自愈」与纯「无限重启」都不对：前者一次崩溃停摆到宿主重启，后者遇毒输入变活锁。终态钉死：`close()`/`terminated` 后任何 exit/crash 都不复活 |
 
 ## 4. 宿主 Native 清单维护
 
