@@ -13,11 +13,12 @@
 # 2026-10-28 追加 dsh-0.2.1-rc.4（纯修复车：页签 tooltip 估算溢出才挂 + More 文案静态化（locale 键 session.moreViewsCurrent 删）；ACP stdout 保留×2；契约面零 diff）卡片与探针行。
 # 2026-10-28 二轮动态：dsh-v0.2.2-alpha.2（`f3803c9697`，= master tip，npm 挂 `alpha` 标）已发——0.2.2 线首 tag，**alpha.1 在 git/npm 均不存在**；换代段（树级 7242 files；commit 数浅克隆下不可考），首批探针：闸门两文件零 diff、SESSION_FORMAT_VERSION 仍 4、capability-seams +50（forge/liveshare/action-cards 等新缝族）、≥26 新包、指南补挂 +39 篇；**断裂面未逐主题析，未建卡不入矩阵——跟进 0.2.2 线前勿盲补枚举**（详见 source-analysis/v0.2.2-alpha.2/README.md）；现尾版=rc.4（0.2.1 线）。
 # 2026-10-31 追加 dsh-0.2.1-rc.5（契约精化车，PR #7572，2026-10-29）卡片与探针行：reasoning body slot 契约换代——**新增必填 `rawText: string` + `text` 语义反转**（原始输出→Chat 处理后展示文本），`ReasoningContentInput` 不再 extends `ReasoningBodyOwnerProps`；闸门/capability-seams/slot key 集合/vendor/settings 核心/持久化 零 diff；官方指南 1 篇（`v0.2.1-rc.4/reasoning-body-props/`）；** 0.2.1 线尾版从 rc.4 推进至 rc.5**（master tip 仍为 0.2.2-alpha.2，与 rc.5 并行分叉）。
+# 2026-11-05 追加 dsh-0.2.2-alpha.3（功能交付段，`05b1cae8db`，2026-11-03，npm `alpha` 标现指此版）：a.2→a.3 树级 2315 files +87k/−27k；闸门/slot/持久化/设置核心**零 diff**；缝 +6/−3（新 `ctx.sessionLogDeepSeek`）；+3 新包（ui-context-menu/ui-file-actions/fs-patch）；指南 +17 篇；**行为 breaking ×1：`fs-observation-policy` 默认关（write/edit 不再强制先 read）+ apply_patch 进门**；SDK `onUserQuestion` 返值加宽（+`{cancelled}`）、`RunResult.finishReason`、Schedule 类型面重写、cordis `EntryTree.write()`删除→`commit(change)`；`next` 标已指 0.2.2-rc.1（`66491b05e3`）。**未建卡不入矩阵——0.2.2 线插件适配策略待全量缝隙分析后裁定**。
 
 meta:
   generated_for: skill-drafts (单一真源三件套 B)
   baselines:
-    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1..rc.5 全 tag + dsh-v0.2.2-alpha.2（= master tip f3803c9697；0.2.2 线无 alpha.1；0.2.1 线探针用 git show|grep <tag>）
+    MAIN: <ws>/deepseek-harness      # 0.2.0-rc.2，git 仓，含 dsh-v0.2.1-alpha.1..5/rc.1..rc.5 全 tag + dsh-v0.2.2-alpha.2 + dsh-v0.2.2-alpha.3（= master tip 05b1cae8db，2026-11-05 补拉；0.2.2 线无 alpha.1；0.2.1 线探针用 git show|grep <tag>）
     AUX:  <ws>/.harness-017rc2-wt    # 0.1.7-rc.2
     OLD:  <ws>/dsh-repo              # 0.1.5-rc.2（文档口径为 0.1.5-rc.3 线）
     # <ws> = 本知识库所在工作区根目录（可移植占位）
@@ -367,7 +368,7 @@ lines:
   - id: dsh-future
     generation: unknown
     placeholder: true
-    status_note: "0.2.2-alpha.2（f3803c9697，2026-10-27，npm `alpha` 标）已发但断裂面未逐主题析——首批探针：闸门零 diff/缝 +50/≥26 新包，建卡前先跑全量缝隙分析；**同时 0.2.1 线尾版已推进至 rc.5（b830ec950f，2026-10-29，PR #7572，reasoning body slot 契约换代车）**——两条线并行分叉（master tip 仍为 a.2）。自有插件侧 rc.5 适配已完成 23/23 仓发布（2026-10-31，media-lens 挂账等 0.3.0 收口，台账 mine-dsh-plugins/.agents/plans/dsh-rc5-adapt-bulk/）"
+    status_note: "0.2.2-alpha.3（`05b1cae8db`，2026-11-03，npm `alpha` 标现指）已发；0.2.2 线探针：闸门仍零 diff、缝 +6/−3、SESSION_FORMAT_VERSION 仍 4、+3 新包、指南 +17。**行为 breaking 已确认（fs-observation-policy 默认关 + apply_patch）但属宿主默认组合变化而非插件 API 形状变化**，未触闸门/slot/持久化/设置面。`next` 标已指 0.2.2-rc.1（git tag `66491b05e3`）。**跟进 0.2.2 线前仍需全量缝隙分析后按仓裁定**——详见 source-analysis/v0.2.2-alpha.3/README.md；0.2.1 线尾版 rc.5；自有插件侧 rc.5 适配已完成 23/23 仓发布（2026-10-31，media-lens 挂账等 0.3.0 收口）"
     settings_registration_api:
       value: "TBD —— 唯一合法判据是重新跑探针：installSection / settingsScope / configForms / volatile / evaluatePluginCompatibility 五面文件数"
       marked: UNVERIFIED

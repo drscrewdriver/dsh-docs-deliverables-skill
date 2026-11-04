@@ -593,6 +593,20 @@
 
 ---
 
+### VD-020-021-10 · 0.2.2-alpha.3 fs-observation-policy 默认关闭 + apply_patch 进门（症状：write 不再要求先 read / FS_NOT_OBSERVED 消失 / apply_patch 工具突然出现）
+
+| 字段 | 内容 |
+|---|---|
+| 变化点 | **`fs-observation-policy` 行默认 `disabled: true`**（tag `05b1cae8db`，0.2.2-alpha.3）：①`write` 覆盖不再拒绝未读文件、`edit` 替换不再要求先 read；②`tool-fs` 新增 config 键 `applyPatch: true`（base/sdk/web-standard 默认开启，ptc/cordis 保持关闭）；③模型 guidance 不再引用 observation policy。另伴随 cordis loader 换代（`EntryTree.write()`→`commit(change)`）、`applyEntryPatches` 全返 clone、Include journal 持久化、bundle row 运行态 `disabled:true` 不再落盘 |
+| 断裂面 | **行为级而非 API 形状级**：闸门/slot/持久化/settings 核心零 diff，插件装载不受影响；依赖 `FS_NOT_OBSERVED`/`FS_STALE_VERSION` 错误码做分支处理的插件（如自定义工具结果展示/安全审计日志）触发路径消失；插件的 cordis.patch.yml 若按 id override `fs-observation-policy` 行需确认仍生效 |
+| 运行时症状 | write/edit 工具调用不再因“未先 read”报错；`apply_patch` 工具出现在模型可用工具列表中。模型 guidance 文案变化（不再提“请先 read 再 write”） |
+| 检测点代码 | `grep -R "FS_NOT_OBSERVED\|FS_STALE_VERSION\|fs-observation-policy" your-plugin/src`——命中即需自查是否依赖该拒绝行为；插件 `cordis.patch.yml` 中若有 `- id: fs-observation-policy` 行需确认 `disabled: false` 显式声明 |
+| 兆底处方 | ①保留旧 read-before-write 行为：profile `cordis.patch.yml` 加 `- id: fs-observation-policy` + `disabled: false`；②关 apply_patch：`- id: tool-fs` + `config: { applyPatch: false }`；③SDK 插件消费 `onUserQuestion` 返回值需处理 `{ cancelled: true }` 分支；④普通 DSH 插件（非工具拦截型、非 SDK）代码零改动；⑤枚举式清单加 `0.2.2-alpha.3` 行否则拒载，caret `^0.2.2-alpha.1` 天然命中 |
+| 证据 | VERIFIED：`git diff --stat dsh-v0.2.2-alpha.2 dsh-v0.2.2-alpha.3 -- docs/capability-seams.md`（+6/−3）+ `git show dsh-v0.2.2-alpha.3:packages/bundle/base/cordis.patch.yml`（disabled:true + applyPatch:false）+ `docs/upgrade-guide/v0.2.2-alpha.2/fs-observation-policy-default-off/guide.md` + `docs/upgrade-guide/v0.2.2-alpha.2/cordis-loader-entry-trees/guide.md` + source-analysis/v0.2.2-alpha.3/README.md |
+| 先例仓 | 工具拦截型插件（perm-gate 类、安全审计类）、自定义工具展示插件（工具结果渲染依赖错误码）、SDK 消费者（union-search、session-steward 若用 SDK 入口） |
+
+---
+
 ## 附：症状词 → VD-ID 路由候选表（供 SKILL.md 首屏，症状词做首词）
 
 | 症状词（用户/日志原话形态） | 首选 VD-ID | 备选 |
@@ -637,6 +651,7 @@
 | run_in_background 无效 / BundleInfo 断言炸 / {{cwd}} 残留 / webRuntime 失效 | VD-020-021-06 | — |
 | 升级宿主后插件不更新 / 官方插件市场 | VD-020-021-07 | VD-020-021-01 |
 | 签名块不显示 / 签名审计不命中 / 复制得到去签名文本 / 签名计入字数偏少 | VD-020-021-09 | — |
+| write 不再要求先 read / FS_NOT_OBSERVED 消失 / apply_patch 工具突然出现 | VD-020-021-10 | — |
 
 ---
 
@@ -650,8 +665,8 @@
 | §4 0.1.5→0.1.6 | 6 | 5 | 0 | 1 | 0 |
 | §5 0.1.6→0.1.7 | 10 | 9 | 0 | 1 | 0 |
 | §6 0.1.7→0.2.0 | 8 | 5 | 1 | 2 | 0 |
-| §7 0.2.0→0.2.1（含线内断代） | 9 | 9 | 0 | 0 | 0 |
-| **合计** | **46** | **40** | **2** | **4** | **0** |
+| §7 0.2.0→0.2.1（含线内断代） | 10 | 10 | 0 | 0 | 0 |
+| **合计** | **47** | **41** | **2** | **4** | **0** |
 
 > 说明：VD-016-017-07（bind 面 `update`→`mutate`/+`dispose`）已并入 VD-016-017-03 的迁移公式条目；VD-011-012-02b 为补号卡。
 > 等级取卡内**最高可用级**（同卡内若部分 PENDING 已在字段栏注明，不因局部待证降级）。

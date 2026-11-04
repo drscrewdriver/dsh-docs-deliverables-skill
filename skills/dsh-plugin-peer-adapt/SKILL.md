@@ -1,11 +1,11 @@
 ---
 name: dsh-plugin-peer-adapt
-description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0.1.1 / 0.1.2 / 0.1.5 / 0.1.6 / 0.1.7 / 0.2.0 / 0.2.1 八线宿主（闸门存在 engines.dsh 优先的换代：≤0.2.1-alpha.3 纯 peer，≥0.2.1-alpha.4 engines.dsh 独裁）。凡涉及：配置面适配（cordis Config schema/schemastery/volatile/settings 表单）、老线装不上/被拒载、installSection is not a function、设置卡不派发、卡片头有但表单空白、改值不热生效、语言包不生效、peer range 怎么写、engines.dsh 拒载、requirements 字段改名、宿主换代适配（compat-0.2.0 类）、devDeps 假绿、双清单/tag 门禁、跨线发版核对——一律先查本技能症状路由表。与 dsh-host-farm（沙箱操作）、cordis-plugin-development（宿主一方 authoring）互补不重叠。
+description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0.1.1 / 0.1.2 / 0.1.5 / 0.1.6 / 0.1.7 / 0.2.0 / 0.2.1 八线宿主（闸门存在 engines.dsh 优先的换代：≤0.2.1-alpha.3 纯 peer，≥0.2.1-alpha.4 engines.dsh 独裁；0.2.2-alpha.3 已登记未建卡）。凡涉及：配置面适配（cordis Config schema/schemastery/volatile/settings 表单）、老线装不上/被拒载、installSection is not a function、设置卡不派发、卡片头有但表单空白、改值不热生效、语言包不生效、peer range 怎么写、engines.dsh 拒载、requirements 字段改名、宿主换代适配（compat-0.2.0 类）、devDeps 假绿、双清单/tag 门禁、跨线发版核对、write 不再要求先 read / FS_NOT_OBSERVED 消失 / apply_patch 工具突然出现、签名块不显示 / rawText 分流——一律先查本技能症状路由表。与 dsh-host-farm（沙箱操作）、cordis-plugin-development（宿主一方 authoring）互补不重叠。
 ---
 
 # DSH 插件跨版本适配（peer-adapt）
 
-> 用法（context7 式三段）：**①症状在本页路由表命中 VD-ID → ②到 `references/version-delta-ledger.md` 取完整卡（≤20 行/卡）→ ③可选：拿卡内锚点 grep 宿主源码现场核验**（基准 `<ws>/deepseek-harness`@0.2.0-rc.2，含 dsh-v0.2.1-alpha.1..5 与 rc.1..rc.5 全 tag——0.2.1 线探针直接 `git show|grep <tag>` / `<ws>/.harness-017rc2-wt`@0.1.7-rc.2 / `<ws>/dsh-repo`@0.1.5-rc.2；`<ws>`=本知识库所在工作区根，基线清单见 `.agents/prd/skill-anchor-map.yaml` meta.baselines）。
+> 用法（context7 式三段）：**①症状在本页路由表命中 VD-ID → ②到 `references/version-delta-ledger.md` 取完整卡（≤20 行/卡）→ ③可选：拿卡内锚点 grep 宿主源码现场核验**（基准 `<ws>/deepseek-harness`@0.2.0-rc.2，含 dsh-v0.2.1-alpha.1..5 与 rc.1..rc.5 全 tag + dsh-v0.2.2-alpha.2 + alpha.3（master tip 现指 05b1cae8db）——0.2.1/0.2.2 线探针直接 `git show|grep <tag>` / `<ws>/.harness-017rc2-wt`@0.1.7-rc.2 / `<ws>/dsh-repo`@0.1.5-rc.2；`<ws>`=本知识库所在工作区根，基线清单见 `.agents/prd/skill-anchor-map.yaml` meta.baselines）。
 > 实证纪律：一切结论三态标注 VERIFIED/FARM/PENDING；原文档冻结，本技能为修订版唯一出口。
 
 ## 症状路由表（症状词 → VD-ID）
@@ -61,8 +61,9 @@ description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0
 | 账号通知元数据读空 / orderId 非 UUID 断言炸 | VD-020-021-04 | ≥a.5 可选 JsonValue 需收窄；空 expiresAt=永久 |
 | 0.2.1-alpha/rc 互相打不中 | VD-020-021-05 | 同三元组预发布序 alpha<rc：^0.2.1-alpha.1 含 rc.1；>=0.2.1-rc.1 不含 alpha；rc.1 本身=纯 bump 面同 a.5 |
 | 签名块不显示 / 签名审计不命中 / 复制得到去签名文本 / 签名计入字数偏少 | VD-020-021-09 | ≥rc.5：body slot `text` 目标口径转"展示文本"（助手仅剥/隐 `<signature>` 签名块，非 `<` 前缀原样透传，多数模型 text===rawText）；需原始含签名全文读 `rawText`；`ReasoningContentInput` 脱钩 `ReasoningBodyOwnerProps` |
+| write 不再要求先 read / FS_NOT_OBSERVED 消失 / apply_patch 工具突然出现 | VD-020-021-10 | ≥0.2.2-alpha.3：`fs-observation-policy` 默认 disabled；保留旧行为需显式 `disabled: false`；普通插件零改动 |
 
-完整卡与 PENDING 项 → `references/version-delta-ledger.md`（46 卡，含 §7 0.2.0→0.2.1 九卡）。未命中症状：Grep 台账文件症状列。
+完整卡与 PENDING 项 → `references/version-delta-ledger.md`（47 卡，含 §7 0.2.0→0.2.1 十卡）。未命中症状：Grep 台账文件症状列。
 
 ## 核心定论（已裁决，不得与旧文档混读）
 
