@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Base di conoscenza plugin",
+    "description": "Fornisce la base di conoscenza per lo sviluppo di plugin DSH come competenze per agenti: contratto di sviluppo, registro di adattamento tra versioni, disciplina di rilascio e sintesi dell'architettura host."
+  }
+}
