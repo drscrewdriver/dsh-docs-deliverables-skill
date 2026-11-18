@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-dev
-description: DSH（DeepSeek Harness）插件开发规范——文件结构/双半架构/host-client 声明分离/展示体系（client 卡片·槽位席位 slots·tab·DOM 主题令牌 --dsw-alias·渲染降级链）/家族节契约(family-tab)/9 语本地化/判定语义四值档位与交付陷阱。凡在 mine-dsh-plugins 或等价仓新写或改造 DSH 插件（dsh.plugin.json、cordis.patch.yml、dsh.client.inject、ctx.slots、locales.ts、settings 表单面、卡片/面板展示）时用。跨版本装不上/换代适配 → 用 dsh-plugin-peer-adapt；沙箱运行 → dsh-host-farm。
+description: DSH（DeepSeek Harness）插件开发规范——文件结构/双半架构/host-client 声明分离/展示体系（client 卡片·槽位席位 slots·tab·DOM 主题令牌 --dsw-alias·渲染降级链）/家族节契约(family-tab)/10 语本地化（含 pt-BR）/判定语义四值档位与交付陷阱。凡在 mine-dsh-plugins 或等价仓新写或改造 DSH 插件（dsh.plugin.json、cordis.patch.yml、dsh.client.inject、ctx.slots、locales.ts、settings 表单面、卡片/面板展示）时用。跨版本装不上/换代适配 → 用 dsh-plugin-peer-adapt；沙箱运行 → dsh-host-farm。
 ---
 
 # DSH 插件开发（dsh-plugin-dev）
@@ -34,10 +34,11 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 4. 宿主剥 inject 面 `hooks` 键转 `useTab` prop——组件读 `props.hooks.tabs` 必炸，需自带订阅兜底。
 5. 验收硬断言：导航行数=1（ROWS= 计数，includes 文本断言禁作去重依据）+ 工厂日志归因 + 必须在部署产物上无头点击穿越。
 
-## 4. 文件结构与 9 语清单（取代旧四语规范）
+## 4. 文件结构与 10 语清单（取代旧四语规范）
 
-- 标准树 → `references/file-structure.md`；语言数=**9**（zh en ja ko fr de it ru es）：运行时 `src/client/locales.ts`（named-export 式：zh 键集为真理源，其余 8 语 `Record<keyof typeof zh, string>` 编译期对齐；map 式需循环注册+人工对键）+ 元数据 `locale/<lang>.json`（**en.json 必需锚**，宿主 `package-meta.ts:104-112,151` 扫描拒重复）+ package.json `exports./locale/*.json`。
-- 全量规范与接线配方 → `references/locale-rollout-9-lang.md`（真源）。死文案（key 定义无人引用）= 漏渲染信号，当静态检查项。
+- 标准树 → `references/file-structure.md`；语言数=**10**（zh en ja ko fr de it ru es **pt**）：运行时 `src/client/locales.ts`（named-export 式：zh 键集为真理源，其余 9 语 `Record<keyof typeof zh, string>` 编译期对齐，新语言一律排在最后一个 export；map 式需循环注册+人工对键）+ 元数据 `locale/<lang>.json`（**en.json 必需锚**，宿主 `package-meta.ts:104-112,151` 扫描拒重复）+ 文档镜像 `README/INSTALL/CHANGELOG.<lang>.md` + package.json `exports./locale/*.json`。
+  宿主事实：`LOCALE_IDS=['zh','en']`、包内 `locale/` 实发 8 语（de en es fr ja **pt** ru zh，**无 it/ko**）→ pt 向官方资源集对齐、it/ko 属「生态外·保留待治理」；pt 运行时字典当前无宿主 UI 消费路径（属无害前向兼容，勿表述为「已可切换」）。pt 拼写口径 = 巴西葡语（pt-BR）。
+- 全量规范与接线配方 → `references/locale-rollout-9-lang.md`（真源；文件名 `9-lang` 为历史命名，内容已扩为 10 语）。死文案（key 定义无人引用）= 漏渲染信号，当静态检查项。
 
 ## 5. 判定语义四值档位（诊断/体检/处置类插件的第一原则）
 
@@ -57,7 +58,7 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 
 ## 参考分片
 
-`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md` · `native-module-isolation.md`（native 模块子进程隔离模式，起源 prime-memory #11）· `electron-host-constraints.md`（Electron 运行时/装配面限制与不可自证项，起源 prime-memory Electron 事故）· `execution-scale-control.md`（六面执行资源控制与冲突裁决，起源 prime-memory #22）· `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
+`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md`（10 语真源）· `native-module-isolation.md`（native 模块子进程隔离模式，起源 prime-memory #11）· `electron-host-constraints.md`（Electron 运行时/装配面限制与不可自证项，起源 prime-memory Electron 事故）· `execution-scale-control.md`（六面执行资源控制与冲突裁决，起源 prime-memory #22）· `settings-nav-icon-override.md`（设置面板 nav 图标去重 DOM CSS 覆盖三件套，起源 better-sidebar）· `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
 
 ## 边界（不重述）
 

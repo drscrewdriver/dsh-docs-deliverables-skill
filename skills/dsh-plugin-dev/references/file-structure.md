@@ -1,4 +1,4 @@
->= ⚠ 代际横幅｜本文件 2026-10-11 冻结。其中「README/CHANGELOG 四语」两行已 SUPERSEDED → 以 locale-rollout-9-lang.md（9 语）为准；其余 JS/TS 双态文件树仍 VERIFIED。
+>= ⚠ 代际横幅｜本文件 2026-10-11 冻结。其中「README/CHANGELOG 四语」两行已 SUPERSEDED → 以 locale-rollout-9-lang.md（现 10 语，含 pt-BR）为准；其余 JS/TS 双态文件树仍 VERIFIED。
 
 # DSH Plugin 标准文件组成
 
