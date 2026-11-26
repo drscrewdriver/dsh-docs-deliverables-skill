@@ -1,6 +1,6 @@
 {
   "name": "dsh-docs-deliverables-skill",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bundled DSH plugin-development knowledge skills: cross-version adaptation ledger (6 host lines), plugin dev contract, release/submission discipline, host architecture digests — served to agents as ctx.skills providers.",
   "type": "module",
   "main": "src/index.js",
@@ -13,9 +13,11 @@
     "src/",
     "skills/",
     "maintenance/",
+    "scripts/",
     "cordis.patch.yml",
     "README.md",
     "README.zh.md",
+    "CHANGELOG.md",
     "LICENSE",
     "locale"
   ],
@@ -44,7 +46,8 @@
     "tag": "latest"
   },
   "scripts": {
-    "prepack": "node scripts/verify-layout.mjs",
-    "verify": "node scripts/verify-layout.mjs"
+    "prepack": "node scripts/verify-layout.mjs && node scripts/check-anchor-map.mjs",
+    "verify": "node scripts/verify-layout.mjs && node scripts/check-anchor-map.mjs",
+    "check:surface": "node scripts/check-surface-classes.mjs"
   }
 }

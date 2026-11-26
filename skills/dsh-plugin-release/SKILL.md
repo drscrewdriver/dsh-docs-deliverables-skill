@@ -1,5 +1,8 @@
 ---
 name: dsh-plugin-release
+contentVersion: "0.1.0"
+contentUpdated: "2026-10-11"
+contentNote: "编纂基线，未改动"
 description: DSH 插件发布与投稿全流程——awesome-dsh-plugin 投稿（YAML 条目/CAT_IDS/PR≤3 条硬规/fork 同步纪律/README 重生成 CI 闸）、npm 发布纪律（registry 钉死/dist-tag/prepack-stale-build 三层防线/V1-V6 包门禁）、日期推导事故教训（git 历史≠数据库）。凡涉及「投稿插件」「发版」「publish」「dist-tag」「打包后没生效」时用。跨版本适配门禁 → dsh-plugin-peer-adapt；装机/冒烟命令 → dsh-host-farm。
 ---
 

@@ -30,7 +30,10 @@ bundle 行挂载 `src/index.js`，向 `skills/` 注册 bundled SkillProvider。�
 ## 开发
 
 ```sh
-npm run verify   # 布局 + kebab-case + 绝对路径可移植闸（prepack 自动跑）
+npm run verify   # 布局 + kebab-case + 绝对路径闸 + 内容漂移闸（prepack 自动跑）
+                 #   漂移检查：每个技能都带 contentVersion/contentUpdated、
+                 #   scripts/ 在 files 白名单内、CHANGELOG 首版 == package.json 版本
+node scripts/check-surface-classes.mjs --root <插件仓>   # 设置面样式类名闸（可拷进任何插件仓）
 ```
 
 ## 状态与边界

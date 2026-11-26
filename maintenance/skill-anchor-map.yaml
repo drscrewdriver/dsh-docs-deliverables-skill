@@ -34,7 +34,7 @@ claims:
       - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:75       # 仅 @deepseek-ai/dsh / @deepseek-ai/dsh-* 前缀
       - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:77       # semver.satisfies(…, includePrerelease:true)
       - AUX: packages/boot/app-boot/src/plugin-compatibility.ts:101      # 豁免通道 dsh plugin allow-version
-      - MAIN: 同文件同语义(callers: app-boot/profile.ts:675, plugin-manager/operations.ts:344,479, index.ts:301,546,722)
+      - "MAIN: 同文件同语义(callers: app-boot/profile.ts:675, plugin-manager/operations.ts:344,479, index.ts:301,546,722)"
     status: CONFLICT-ADJUDICATED   # engines.dsh 与 dsh.plugin.json 均不在 runtime 门禁面;双清单不一致=元数据卫生级(P2)
     feeds: [peer-adapt SKILL 双闸门, gate-checklist 分级, VD 卡「老线装不上」处方]
 
@@ -97,3 +97,89 @@ claims:
       - VERSION-DISTRIBUTION F3 dsh.plugin.json → 被 gate-peer-only-authority 裁决取代
       - 01-host-client installSection 骨架 → 按三代分派改写
     status: CONFLICT-ADJUDICATED
+
+  # ───────────────────────── surface-* ：设置面接线与样式（2026-11-26 立）
+  # 起源：dsh-manage-session 2.0.26 四类实机故障（列数不生效 / 家族 tab 开关不接线 /
+  # star 行退化 / 设置卡样式错乱）。证据一律取自桌面 app.asar 实读。
+  # asar 读法：u32@4 = headerSize；JSON 从 offset 16 起、长度 headerSize-8；
+  #            数据区起点 = 16 + (headerSize-8)，故 file bytes = dataStart + entry.offset。
+
+  surface-host-writable-always-true:
+    source: skills/dsh-plugin-dev/references/settings-surface-wiring.md §1.1/§1.3
+    evidence:
+      - "ASAR: @deepseek-ai/dsh-settings/src/index.ts  # `get writable(): boolean { return true }`"
+      - "ASAR: 同文件 describe()  # ns = entry.options.id；volatileForm(schema) undefined 的 entry 直接不进结果"
+      - "ASAR: 同文件 write()     # `expected !== undefined && descriptor.revision !== expected` 才抛冲突"
+      - "ASAR: 同文件 volatileForm(form) undefined 分支 # 抛 `Plugin entry \"<ns>\" has no volatile fields`"
+    status: VERIFIED   # 2026-11-26 asar 实读；「宿主不存在只读模式」由此成立
+    feeds: [plugin-dev SKILL §3 铁律1, settings-surface-wiring §1, §5.2 步骤5]
+
+  surface-configforms-namespace-eq-entryid:
+    source: settings-surface-wiring.md §1.2
+    evidence:
+      - "ASAR: @deepseek-ai/dsh-client-ui-settings/src/client/config-form.ts  # `new ConfigFormController(owner, { namespace: entryId }, …)`"
+      - "ASAR: 同文件 derive() # writable 取 mirrored.view.writable；status='unavailable' 仅当 namespaces 里找不到该 ns"
+    status: VERIFIED
+    feeds: [plugin-dev SKILL §3 铁律2, settings-surface-wiring §1.2 失败二分表]
+
+  surface-settings-nav-open-section-unavailable:
+    source: settings-surface-wiring.md §3
+    evidence:
+      - "ASAR: @deepseek-ai/dsh-client-ui-settings/src/client/contract/slots.ts  # 'settings.launcher' kind single；SettingsSectionOwnerProps 只有 close"
+      - "ASAR: @deepseek-ai/dsh-client-ui-settings-general/src/client/index.ts   # 'sidebar.settings' register 带 `store: shellStore`"
+      - "ASAR: 同包 src/client/shell-store.ts  # openSection: (d, id) => { d.activeId = id; d.open = true }"
+      - "ASAR: 同包 src/client/SettingsRoot.tsx  # renderSlot('settings.launcher', { openSettings })"
+    status: VERIFIED (写入侧) / PENDING (运行时 store 可达性)   # 类型面从不声明 store，只能在宿主内探测
+    feeds: [plugin-dev SKILL §3 跳转设置页条, settings-surface-wiring §3 A/B/C 分级处方]
+
+  surface-classname-without-css-definition:
+    source: settings-surface-wiring.md §4/§5.1
+    evidence:
+      - "RUN: `node scripts/check-surface-classes.mjs --prefix dms_` 在 dsh-manage-session  # 命中 dms_seg / dms_setStar / dms_gate_<插值> / dms_segBtn<插值>"
+      - "RUN: 同脚本在 dsh-search-index  # OK（dsws_seg* 全部有定义）⇒ 闸能区分好坏仓"
+      - "SRC: dsh-manage-session src/client/index.ts 样式串  # `grep -c dms_seg` = 0"
+    status: VERIFIED   # 2026-11-26 双仓对照实测
+    feeds: [plugin-dev SKILL §3 铁律5, settings-surface-wiring §4/§5.1, 随附脚本 check-surface-classes.mjs]
+
+  surface-css-gate-fragment-prefix-rule:
+    source: settings-surface-wiring.md §4.3/§5.1
+    evidence:
+      - "RUN: 首版闸对 `dms_level_${level}` 误报  # 真类 dms_level_ok 已定义；判据改为「有任一已定义类名以 PREFIX 开头」后转绿"
+      - "RUN: 同判据对 `dms_gate_${level}` 仍报  # 样式里只有 dms_gate/dms_gateList/dms_gateName，无 dms_gate_<level> 族 ⇒ 真阳性"
+    status: VERIFIED   # 假阳性修正过程留档，防止后人再把判据写回「PREFIX 本身被定义」
+    feeds: [check-surface-classes.mjs orphanFragments 逻辑, settings-surface-wiring §4.3]
+
+  surface-dismissed-key-versioning:
+    source: settings-surface-wiring.md §5.3
+    evidence:
+      - "SRC: dsh-manage-session star-row 产物 lib/client.js # extendedStarRow 首行 `if (starDismissed()) return link`"
+      - "SRC: 同产物 starDismissed()/starDismiss() # 读写 `dsh.star.<ns>.dismissed`"
+      - "HIST: manage-session-readonly-star/findings.md # 2.0.25 把「点 ★」写成 starDismiss()，语义错误"
+    status: VERIFIED (源码) / FARM (用户侧旧键实际值为 1，需真机 localStorage 取证)
+    feeds: [plugin-dev SKILL §3 末条, settings-surface-wiring §5.3]
+
+  surface-snapshot-vs-oneshot-fetch:
+    source: settings-surface-wiring.md §2.1
+    evidence:
+      - "SRC: dsh-manage-session src/client/manage.tsx  # useEffect(..., []) 一次性 callSteward('session-health-status') 取 switches.columns，无订阅"
+      - "SRC: dsh-manage-session src/index.ts  # session-health-status 回 switches.columns = config.columns（快照，非流）"
+    status: VERIFIED   # 「设置写了但面板不刷」的第二层根因
+    feeds: [plugin-dev SKILL §3 铁律4, settings-surface-wiring §2.1]
+
+  surface-styled-all-plain-three-causes:
+    source: settings-surface-wiring.md §4.4（新增）
+    evidence:
+      - "SRC: dsh-progress-union client.js  # 注释「样式必须注入 document.head：设置页 / 插件详情页是另一个 React 根，数据面板里的 <style> 到不了那里（上一版设置卡「裸奔」的原因）」"
+      - "SRC: 同文件 ensureHeadStyle/apply  # 注释记时序坑：头部 utilities 比面板先挂载；dock 进度板为空时提前 return 连自己 <style> 都不渲染 → 浏览器默认按钮在深色头部成反色块"
+      - "SRC: 同文件 SETTINGS_STYLE_ID / BOARD_STYLE_ID  # 两套 CSS 两个独立 style id（避免幂等闸 getElementById 吞掉后续样式）"
+      - "RUN: `node scripts/check-surface-classes.mjs --prefix pb-` 在 dsh-progress-union  # 命中 pb-dock-enable（className 有、样式零定义），且不再误报插值前缀 pb- / pb-s-"
+    status: VERIFIED   # 2026-11-26 源码实读 + 三仓回归（progress-union exit1 / manage-session exit1 / search-index exit0）
+    feeds: [plugin-dev SKILL §3 铁律6-7, settings-surface-wiring §4.4「样式全素三因」+ §4.5 四步自查]
+
+  surface-gate-dir-autodetect:
+    source: settings-surface-wiring.md §5.1 覆盖边界表
+    evidence:
+      - "RUN: 首版闸写死 src/client → 对单文件 JS 仓（dsh-progress-union 只有 client.js/index.js）整个 skip，exit 0 假绿"
+      - "RUN: 加 --dir / 自动探测链（src/client → client/src → src → 仓根）+ --ext 后，同一命令在 progress-union 正确 FAIL"
+    status: VERIFIED   # 「跳过 = 假绿」是闸设计事故，已固化进脚本头注释
+    feeds: [check-surface-classes.mjs 用法段, settings-surface-wiring §5.1]

@@ -1,5 +1,8 @@
 ---
 name: dsh-host-internals
+contentVersion: "0.1.0"
+contentUpdated: "2026-10-11"
+contentNote: "编纂基线，未改动"
 description: DSH（DeepSeek Harness）宿主内部架构查阅——12 篇模块解读的 digest 分片 + 源码锚点侧车（file:line@0.2.0-rc.2）+ 读者路由表。凡需要理解宿主某子系统如何工作（Cordis 框架/core 主干/shell 能力缝/llm-typert/执行世界-沙箱/记忆/多智能体/协作治理/cli-boot/GUI 前后端/协议 SDK/工程体系）或「我要给插件加 X 能力该碰哪个面」时用。写插件的操作规范 → dsh-plugin-dev；版本断裂面/适配 → dsh-plugin-peer-adapt，本技能只讲原理与定位。
 ---
 

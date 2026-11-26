@@ -1,5 +1,8 @@
 ---
 name: dsh-plugin-dev
+contentVersion: "0.2.0"
+contentUpdated: "2026-11-26"
+contentNote: "新增 settings-surface-wiring（设置面接线 7 铁律 + 样式全素三因）；随附两个零依赖闸脚本"
 description: DSH（DeepSeek Harness）插件开发规范——文件结构/双半架构/host-client 声明分离/展示体系（client 卡片·槽位席位 slots·tab·DOM 主题令牌 --dsw-alias·渲染降级链）/家族节契约(family-tab)/10 语本地化（含 pt-BR）/判定语义四值档位与交付陷阱。凡在 mine-dsh-plugins 或等价仓新写或改造 DSH 插件（dsh.plugin.json、cordis.patch.yml、dsh.client.inject、ctx.slots、locales.ts、settings 表单面、卡片/面板展示）时用。跨版本装不上/换代适配 → 用 dsh-plugin-peer-adapt；沙箱运行 → dsh-host-farm。
 ---
 
@@ -24,7 +27,22 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 - ≤0.1.6 无 `.volatile()`——跨代代码必须 `typeof field.volatile === 'function'` 探测。
 - VD 卡：installSection→VD-016-017-01、volatile→VD-015-016-04、键名重映射→VD-016-017-05。
 
-## 3. 家族节契约 5 铁律（`references/family-tab-contract.md` v1.0，冲突以该文为准）
+## 3. 设置面接线 5 铁律（`references/settings-surface-wiring.md`；新插件开工必读）
+
+> 症状索引：开关全禁 + 「只读挂载」文案 → §1.3；点了不生效 / 刷新丢失 → §1.5 + §2.1；分段钮/控件样式烂 → §4；star/跳过类按钮永久消失 → §5.3。
+
+1. **`writable: false` 只能来自真实读取**——宿主 `get writable() { return true }` 恒可写；硬编码只读兜底会造出「宿主可写但 UI 全禁」的假只读，文案还会误导排查方向。
+2. **namespace 就是 profile entry id**；`status:'unavailable'` = id 错配 / entry 非 ACTIVE / schema 无 volatile 字段（`volatileForm` 为 undefined 时该 entry 直接不进 describe，不报错）。
+3. **写入不传 `expectedRevision`**（除乐观锁场景）——宿主 `expected === undefined` 时跳过 revision 比对；写路径 `update` → `replace` → `mutate` 三选一。
+4. **一份快照驱动所有控件**；一次性 fetch 读设置 = 永不刷新的快照。乐观回显失败必须回滚（开关弹回 = 用户可见的失败信号）。
+5. **每个 className 必须在样式串里有定义**——`tsc`/`vitest`/`build` 全抓不到。用 `scripts/check-surface-classes.mjs --prefix <你的前缀>` 闸（零依赖，接进 `prepack`）。
+6. **类名齐全 ≠ 样式到位**（「样式全素」独立一因）：跨 React 根/跨槽位复用的 CSS 必须 `apply()` 期进 `document.head`，**不能**写在组件子树里（设置页是另一个 React 根）、也**不能**等组件挂载（头部/dock 先画出来就是无样式默认按钮，深色头部上是反色块）；每套 CSS 用**独立 style id**（同 id 时后续 CSS 被幂等闸静默吞掉）。详见 §4.4「样式全素三因」。
+7. **条件类名禁塞进插值**：`` `x${on ? ' hidden' : ''}` `` 里的 `hidden` 闸扫不到，且是全素事故高发写法 → 写成两个完整分支 `on ? 'x hidden' : 'x'`。
+
+- 跳转设置页：`settings.launcher` 是 single 且被官方占用、section owner props 只有 `close`；`sidebar.settings` 注册时带 `store`（运行时探测）→ 走「A 尝试 `openSection('plugins')` → B 降级派发快捷键」。
+- 「用户点过就别再打扰」的 localStorage 键必须带版本段（`.v2.dismissed`）；**语义一改就升版键名并删除旧键**（不迁值，旧值常是旧 bug 的误判）。
+
+## 4. 家族节契约 5 铁律（`references/family-tab-contract.md` v1.0，冲突以该文为准）
 
 > 适用边界｜契约是 **dsh-family 私有实例**（自家插件群专属 id/选举序列）。其它插件群要共用一个聚合设置节 → 用参数化通用版 `references/generic-aggregation-section-playbook.md`（先填实例化参数表，机制铁律/选举协议/验收断言直接套用）。
 
@@ -34,18 +52,18 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 4. 宿主剥 inject 面 `hooks` 键转 `useTab` prop——组件读 `props.hooks.tabs` 必炸，需自带订阅兜底。
 5. 验收硬断言：导航行数=1（ROWS= 计数，includes 文本断言禁作去重依据）+ 工厂日志归因 + 必须在部署产物上无头点击穿越。
 
-## 4. 文件结构与 10 语清单（取代旧四语规范）
+## 5. 文件结构与 10 语清单（取代旧四语规范）
 
 - 标准树 → `references/file-structure.md`；语言数=**10**（zh en ja ko fr de it ru es **pt**）：运行时 `src/client/locales.ts`（named-export 式：zh 键集为真理源，其余 9 语 `Record<keyof typeof zh, string>` 编译期对齐，新语言一律排在最后一个 export；map 式需循环注册+人工对键）+ 元数据 `locale/<lang>.json`（**en.json 必需锚**，宿主 `package-meta.ts:104-112,151` 扫描拒重复）+ 文档镜像 `README/INSTALL/CHANGELOG.<lang>.md` + package.json `exports./locale/*.json`。
   宿主事实：`LOCALE_IDS=['zh','en']`、包内 `locale/` 实发 8 语（de en es fr ja **pt** ru zh，**无 it/ko**）→ pt 向官方资源集对齐、it/ko 属「生态外·保留待治理」；pt 运行时字典当前无宿主 UI 消费路径（属无害前向兼容，勿表述为「已可切换」）。pt 拼写口径 = 巴西葡语（pt-BR）。
 - 全量规范与接线配方 → `references/locale-rollout-9-lang.md`（真源；文件名 `9-lang` 为历史命名，内容已扩为 10 语）。死文案（key 定义无人引用）= 漏渲染信号，当静态检查项。
 
-## 5. 判定语义四值档位（诊断/体检/处置类插件的第一原则）
+## 6. 判定语义四值档位（诊断/体检/处置类插件的第一原则）
 
 `ok`（正常）/ `warn`（**有据**可疑）/ `fail`（硬损坏）/ `skipped`（**无据、中性、不入聚合**）。
 把「无法判定」当「异常」= 全量假阳性（实案：用户看到 30 条假异常）。判定与处置共享一个谓词 `isActionable()`（仅 warn/fail 可处置）；处置返回 `(verdict, explanation, residual)` 三元组。→ 20 条陷阱全表在 `references/judgment-and-delivery-traps.md` 首页速查。
 
-## 6. 不要做（事故直译，含出处）
+## 7. 不要做（事故直译，含出处）
 
 - ⛔ 只看 git log 宣布修好 → 核对装机产物哈希==仓库产物哈希（#13）；⛔ 浮动 ref 装东西 → 钉 SHA（#14）。
 - ⛔ remove+add 裸重装（add 失败=插件消失）→ 先备份依赖行（#15）；⛔ `pnpm add` 当装好 → 不补 `dsh.profile.bundles`，须 `dsh plugin add` 对账（#16）。
@@ -58,7 +76,9 @@ description: DSH（DeepSeek Harness）插件开发规范——文件结构/双�
 
 ## 参考分片
 
-`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md`（10 语真源）· `native-module-isolation.md`（native 模块子进程隔离模式，起源 prime-memory #11）· `electron-host-constraints.md`（Electron 运行时/装配面限制与不可自证项，起源 prime-memory Electron 事故）· `execution-scale-control.md`（六面执行资源控制与冲突裁决，起源 prime-memory #22）· `settings-nav-icon-override.md`（设置面板 nav 图标去重 DOM CSS 覆盖三件套，起源 better-sidebar）· `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
+`three-generation-settings-waist.md`（10 号全篇，三代 waist+六线槽位实测）· `settings-surface-wiring.md`（设置面接线 5 铁律/写路径三选一/跳转设置页分级/样式类名闸，起源 manage-session 2.0.26 四类故障）· `family-tab-contract.md`（12 号全篇）· `judgment-and-delivery-traps.md`（08 号全篇 591 行）· `dual-half-host-client.md` · `file-structure.md` · `locale-rollout-9-lang.md`（10 语真源）· `native-module-isolation.md`（native 模块子进程隔离模式，起源 prime-memory #11）· `electron-host-constraints.md`（Electron 运行时/装配面限制与不可自证项，起源 prime-memory Electron 事故）· `execution-scale-control.md`（六面执行资源控制与冲突裁决，起源 prime-memory #22）· `settings-nav-icon-override.md`（设置面板 nav 图标去重 DOM CSS 覆盖三件套，起源 better-sidebar）· `historical/`（compat-012 与 version-distribution，仅沿革用，均带废止横幅）。
+
+**随附脚本**（拷进插件仓 `scripts/` 后接进 `prepack`）：`scripts/check-surface-classes.mjs` —— 设置面样式类名完整性闸，抓「className 用了但样式串没定义」（`tsc`/`vitest`/`build` 全抓不到）。用法 `node scripts/check-surface-classes.mjs --prefix <你的前缀>`，退出码 1 即有漏定义。
 
 ## 边界（不重述）
 

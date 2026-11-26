@@ -1,5 +1,8 @@
 ---
 name: dsh-plugin-peer-adapt
+contentVersion: "0.1.0"
+contentUpdated: "2026-10-11"
+contentNote: "编纂基线，未改动"
 description: DSH 插件跨版本适配主技能——同时支持 0.1.0-rc.8 / 0.1.1 / 0.1.2 / 0.1.5 / 0.1.6 / 0.1.7 / 0.2.0 / 0.2.1 八线宿主（闸门存在 engines.dsh 优先的换代：≤0.2.1-alpha.3 纯 peer，≥0.2.1-alpha.4 engines.dsh 独裁；0.2.2-alpha.3 已登记未建卡）。凡涉及：配置面适配（cordis Config schema/schemastery/volatile/settings 表单）、老线装不上/被拒载、installSection is not a function、设置卡不派发、卡片头有但表单空白、改值不热生效、语言包不生效、peer range 怎么写、engines.dsh 拒载、requirements 字段改名、宿主换代适配（compat-0.2.0 类）、devDeps 假绿、双清单/tag 门禁、跨线发版核对、write 不再要求先 read / FS_NOT_OBSERVED 消失 / apply_patch 工具突然出现、签名块不显示 / rawText 分流——一律先查本技能症状路由表。与 dsh-host-farm（沙箱操作）、cordis-plugin-development（宿主一方 authoring）互补不重叠。
 ---
 

@@ -34,7 +34,10 @@ The layout is exactly the host's native discovery format (`<skill>/SKILL.md`), a
 ## Development
 
 ```sh
-npm run verify   # layout + kebab-case + absolute-path portability gate (also runs on prepack)
+npm run verify   # layout + kebab-case + absolute-path gate + CONTENT-DRIFT gate (also runs on prepack)
+                 #   drift checks: every skill carries contentVersion/contentUpdated,
+                 #   scripts/ is in package.json files, CHANGELOG head == package version
+node scripts/check-surface-classes.mjs --root <plugin-repo>   # style-class gate (copy into any plugin)
 ```
 
 ## Status & boundaries
